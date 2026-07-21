@@ -2,10 +2,26 @@ from flask import Flask, request, jsonify, render_template, session, redirect, u
 import pymysql
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
+from webauthn import (
+    generate_registration_options,
+    verify_registration_response,
+    generate_authentication_options,
+    verify_authentication_response
+)
+from webauthn.helpers.structs import (
+    AuthenticatorSelectionCriteria,
+    UserVerificationRequirement
+)
 
 app = Flask(__name__)
+# Secret key used to encrypt user sessions
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "super_secret_it_inventory_key_2026")
 
+# Domain configuration for WebAuthn Biometrics
+RP_ID = os.environ.get("RP_ID", "it-inventory-system-ns6u.onrender.com")
+RP_NAME = "IT Inventory System"
+
+# --- DATABASE CONNECTION ---
 def get_db_connection():
     return pymysql.connect(
         host=os.environ.get("TIDB_HOST", "localhost"),
@@ -13,10 +29,10 @@ def get_db_connection():
         password=os.environ.get("TIDB_PASSWORD", ""),
         database=os.environ.get("TIDB_NAME", "test"),
         port=int(os.environ.get("TIDB_PORT", 4000)),
-        ssl={'ssl': {}}
+        ssl={'ssl': {}}  # Required for TiDB Cloud Serverless SSL
     )
 
-# Check if any user exists in database
+# Helper function to verify if any users exist in the system
 def check_admin_exists():
     conn = get_db_connection()
     try:
@@ -24,10 +40,13 @@ def check_admin_exists():
             cursor.execute("SELECT COUNT(*) FROM users")
             count = cursor.fetchone()[0]
             return count > 0
+    except Exception as e:
+        print(f"Database error checking admin: {e}")
+        return False
     finally:
         conn.close()
 
-# --- ROUTE PROTECTIONS ---
+# --- PAGE ROUTE PROTECTIONS ---
 @app.route('/')
 def index():
     if not check_admin_exists():
@@ -40,6 +59,8 @@ def index():
 def login_page():
     if not check_admin_exists():
         return redirect('/setup-admin')
+    if 'user_id' in session:
+        return redirect('/')
     return render_template('login.html')
 
 @app.route('/setup-admin')
@@ -53,7 +74,7 @@ def logout():
     session.clear()
     return redirect('/login')
 
-# --- INITIAL SUPER ADMIN CREATION (Only works when database has 0 users) ---
+# --- INITIAL SUPER ADMIN SETUP ROUTE ---
 @app.route('/api/setup-super-admin', methods=['POST'])
 def setup_super_admin():
     if check_admin_exists():
@@ -76,15 +97,17 @@ def setup_super_admin():
                 (username, pwd_hash, full_name)
             )
         conn.commit()
-        return jsonify({"status": "success", "message": "Super Admin created successfully!"})
+        return jsonify({"status": "success", "message": "Master Super Admin created successfully!"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 400
     finally:
         conn.close()
 
-# --- CREATE USER FROM DASHBOARD (Admin Only) ---
+# --- CREATE USER ROUTE (Admin Only from Dashboard) ---
 @app.route('/api/users/create', methods=['POST'])
 def create_user_dashboard():
     if 'user_id' not in session or session.get('user', {}).get('role') != 'Super Admin':
-        return jsonify({"status": "error", "message": "Unauthorized. Super Admin access required."}), 403
+        return jsonify({"status": "error", "message": "Unauthorized. Super Admin privilege required."}), 403
 
     data = request.json
     username = data.get('username')
@@ -103,11 +126,11 @@ def create_user_dashboard():
         conn.commit()
         return jsonify({"status": "success", "message": f"Account for {username} created successfully!"})
     except Exception as e:
-        return jsonify({"status": "error", "message": "Username already exists or error saving user."}), 400
+        return jsonify({"status": "error", "message": "Username already taken or database error."}), 400
     finally:
         conn.close()
 
-# --- PASSWORD LOGIN ---
+# --- LOGIN AUTHENTICATION ROUTE ---
 @app.route('/api/login/password', methods=['POST'])
 def login_password():
     data = request.json
@@ -133,7 +156,35 @@ def login_password():
     finally:
         conn.close()
 
-# --- INVENTORY API ---
+# --- BIOMETRIC / FINGERPRINT WEBAUTHN ENDPOINTS ---
+@app.route('/api/webauthn/register-options', methods=['POST'])
+def webauthn_register_options():
+    if 'user_id' not in session:
+        return jsonify({"status": "error", "message": "Unauthorized"}), 401
+    
+    user = session['user']
+    options = generate_registration_options(
+        rp_id=RP_ID,
+        rp_name=RP_NAME,
+        user_id=str(user['id']).encode('utf-8'),
+        user_name=user['username'],
+        authenticator_selection=AuthenticatorSelectionCriteria(
+            user_verification=UserVerificationRequirement.PREFERRED
+        )
+    )
+    session['register_challenge'] = options.challenge
+    return options.json()
+
+@app.route('/api/webauthn/login-options', methods=['POST'])
+def webauthn_login_options():
+    options = generate_authentication_options(
+        rp_id=RP_ID,
+        user_verification=UserVerificationRequirement.PREFERRED
+    )
+    session['auth_challenge'] = options.challenge
+    return options.json()
+
+# --- INVENTORY API (21-FIELD CRUD) ---
 @app.route('/api/inventory', methods=['GET', 'POST'])
 def handle_inventory():
     if 'user_id' not in session:
@@ -159,30 +210,31 @@ def handle_inventory():
                     depreciation_date=%s, findings=%s, fa_number=%s, mac_address=%s,
                     action_taken=%s, remarks=%s, tech_support=%s
                 """
-                def p_date(d): return d if d else None
+                def parse_date(d): return d if d else None
                 vals = (
                     data.get('it_business_name'), data.get('system_unit'), data.get('issued_company_owned'), data.get('employee_name'),
-                    p_date(data.get('date_visited')), data.get('it_code'), data.get('model_brand'), data.get('ram'), data.get('storage_capacity'),
-                    data.get('serial_hdd_all'), data.get('description_specs'), p_date(data.get('date_issued')), data.get('unit_age'),
-                    p_date(data.get('depreciation_date')), data.get('findings'), data.get('fa_number'), data.get('mac_address'),
+                    parse_date(data.get('date_visited')), data.get('it_code'), data.get('model_brand'), data.get('ram'), data.get('storage_capacity'),
+                    data.get('serial_hdd_all'), data.get('description_specs'), parse_date(data.get('date_issued')), data.get('unit_age'),
+                    parse_date(data.get('depreciation_date')), data.get('findings'), data.get('fa_number'), data.get('mac_address'),
                     data.get('action_taken'), data.get('remarks'), data.get('tech_support'),
+                    # Values for ON DUPLICATE KEY UPDATE
                     data.get('it_business_name'), data.get('system_unit'), data.get('issued_company_owned'), data.get('employee_name'),
-                    p_date(data.get('date_visited')), data.get('model_brand'), data.get('ram'), data.get('storage_capacity'),
-                    data.get('serial_hdd_all'), data.get('description_specs'), p_date(data.get('date_issued')), data.get('unit_age'),
-                    p_date(data.get('depreciation_date')), data.get('findings'), data.get('fa_number'), data.get('mac_address'),
+                    parse_date(data.get('date_visited')), data.get('model_brand'), data.get('ram'), data.get('storage_capacity'),
+                    data.get('serial_hdd_all'), data.get('description_specs'), parse_date(data.get('date_issued')), data.get('unit_age'),
+                    parse_date(data.get('depreciation_date')), data.get('findings'), data.get('fa_number'), data.get('mac_address'),
                     data.get('action_taken'), data.get('remarks'), data.get('tech_support')
                 )
                 cursor.execute(sql, vals)
             conn.commit()
-            return jsonify({"status": "success", "message": "Saved successfully!"})
+            return jsonify({"status": "success", "message": "Record saved successfully!"})
         else:
             with conn.cursor(pymysql.cursors.DictCursor) as cursor:
                 cursor.execute("SELECT * FROM it_inventory ORDER BY updated_at DESC")
-                recs = cursor.fetchall()
-                for r in recs:
+                records = cursor.fetchall()
+                for r in records:
                     for df in ['date_visited', 'date_issued', 'depreciation_date']:
                         if r[df]: r[df] = str(r[df])
-            return jsonify(recs)
+            return jsonify(records)
     finally:
         conn.close()
 
