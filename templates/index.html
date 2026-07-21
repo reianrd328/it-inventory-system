@@ -142,6 +142,18 @@
     <script>
         document.addEventListener('DOMContentLoaded', loadInventory);
 
+        // --- Base64URL Decoders for WebAuthn ---
+        function base64UrlToBuffer(base64url) {
+            let padding = '='.repeat((4 - base64url.length % 4) % 4);
+            let base64 = (base64url + padding).replace(/\-/g, '+').replace(/_/g, '/');
+            let rawData = window.atob(base64);
+            let outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray.buffer;
+        }
+
         // --- Super Admin User Creation ---
         const createUserForm = document.getElementById('createUserForm');
         if (createUserForm) {
@@ -167,16 +179,27 @@
         document.getElementById('btnRegisterBiometric')?.addEventListener('click', async () => {
             try {
                 const optRes = await fetch('/api/webauthn/register-options', { method: 'POST' });
+                if (!optRes.ok) throw new Error("Failed to load options");
+                
                 const options = await optRes.json();
                 
-                options.challenge = Uint8Array.from(atob(options.challenge), c => c.charCodeAt(0));
-                options.user.id = Uint8Array.from(atob(options.user.id), c => c.charCodeAt(0));
+                // Convert Base64URL strings to ArrayBuffers expected by browser API
+                options.challenge = base64UrlToBuffer(options.challenge);
+                options.user.id = base64UrlToBuffer(options.user.id);
+
+                if (options.excludeCredentials) {
+                    options.excludeCredentials = options.excludeCredentials.map(c => ({
+                        ...c,
+                        id: base64UrlToBuffer(c.id)
+                    }));
+                }
 
                 const credential = await navigator.credentials.create({ publicKey: options });
                 if (credential) {
                     alert('Fingerprint successfully registered to your account!');
                 }
             } catch (err) {
+                console.error(err);
                 alert('Fingerprint registration canceled or unsupported on this device.');
             }
         });
