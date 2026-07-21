@@ -16,8 +16,11 @@
         input, select, textarea { padding: 8px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
         button { background: #0056b3; color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; margin-top: 15px; }
         button:hover { background: #003d80; }
+        .btn-bio { background: #10b981; margin-top: 0; padding: 8px 15px; font-size: 13px; }
+        .btn-bio:hover { background: #059669; }
         .btn-print { background: #28a745; margin-top: 0; }
-        .btn-danger { background: #dc3545; }
+        .btn-print:hover { background: #1e7e34; }
+        .btn-danger { background: #dc3545; padding: 8px 15px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 13px; color: white; }
         .table-responsive { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; font-size: 13px; }
         th, td { border: 1px solid #ddd; padding: 8px 10px; text-align: left; }
@@ -36,16 +39,17 @@
 </head>
 <body>
     <div class="container">
-        <!-- Top Navbar -->
+        <!-- Top Navigation Header -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;" class="no-print">
             <h2>🖥️ IT Inventory & Checking System</h2>
-            <div>
-                <span style="font-size: 14px; margin-right: 10px;">👤 <strong>{{ user.full_name or user.username }}</strong> ({{ user.role }})</span>
-                <a href="/logout" style="background: #dc3545; color: white; padding: 8px 15px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 13px;">Logout 🚪</a>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 14px;">👤 <strong>{{ user.full_name or user.username }}</strong> ({{ user.role }})</span>
+                <button id="btnRegisterBiometric" class="btn-bio">👆 Register Fingerprint</button>
+                <a href="/logout" class="btn-danger">Logout 🚪</a>
             </div>
         </div>
 
-        <!-- SUPER ADMIN ONLY: Create New User Account Panel -->
+        <!-- SUPER ADMIN ONLY: User Account Management Panel -->
         {% if user.role == 'Super Admin' %}
         <div class="card admin-card no-print">
             <h3 style="margin-top:0; color: #0369a1;">👑 User Account Management (Super Admin)</h3>
@@ -67,7 +71,7 @@
         </div>
         {% endif %}
 
-        <!-- Entry Form -->
+        <!-- Entry Form for 21 IT Inventory Fields -->
         <div class="card no-print">
             <h3>Record Unit / Maintenance Report</h3>
             <form id="inventoryForm">
@@ -105,7 +109,7 @@
             </form>
         </div>
 
-        <!-- Inventory List / Printable Report -->
+        <!-- Inventory Summary Table / Printable Report -->
         <div class="card">
             <h2 class="print-title">IT INVENTORY & MAINTENANCE REPORT</h2>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
@@ -128,7 +132,7 @@
                         </tr>
                     </thead>
                     <tbody id="inventoryTable">
-                        <!-- Loaded via JS -->
+                        <!-- Loaded dynamically via JS -->
                     </tbody>
                 </table>
             </div>
@@ -138,7 +142,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', loadInventory);
 
-        // Super Admin: Create User Handler
+        // --- Super Admin User Creation ---
         const createUserForm = document.getElementById('createUserForm');
         if (createUserForm) {
             createUserForm.addEventListener('submit', async (e) => {
@@ -159,7 +163,25 @@
             });
         }
 
-        // Inventory Form Submission Handler
+        // --- Biometric Fingerprint Registration Handler ---
+        document.getElementById('btnRegisterBiometric')?.addEventListener('click', async () => {
+            try {
+                const optRes = await fetch('/api/webauthn/register-options', { method: 'POST' });
+                const options = await optRes.json();
+                
+                options.challenge = Uint8Array.from(atob(options.challenge), c => c.charCodeAt(0));
+                options.user.id = Uint8Array.from(atob(options.user.id), c => c.charCodeAt(0));
+
+                const credential = await navigator.credentials.create({ publicKey: options });
+                if (credential) {
+                    alert('Fingerprint successfully registered to your account!');
+                }
+            } catch (err) {
+                alert('Fingerprint registration canceled or unsupported on this device.');
+            }
+        });
+
+        // --- Inventory Form Submission Handler ---
         document.getElementById('inventoryForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const payload = {
@@ -200,6 +222,7 @@
             }
         });
 
+        // --- Fetch & Load Inventory Table Data ---
         async function loadInventory() {
             const res = await fetch('/api/inventory');
             const data = await res.json();
