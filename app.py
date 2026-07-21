@@ -2,24 +2,10 @@ from flask import Flask, request, jsonify, render_template, session, redirect, u
 import pymysql
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
-from webauthn import (
-    generate_registration_options,
-    verify_registration_response,
-    generate_authentication_options,
-    verify_authentication_response
-)
-from webauthn.helpers.structs import (
-    AuthenticatorSelectionCriteria,
-    UserVerificationRequirement
-)
 
 app = Flask(__name__)
 # Secret key used to encrypt user sessions
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "super_secret_it_inventory_key_2026")
-
-# Domain configuration for WebAuthn Biometrics
-RP_ID = os.environ.get("RP_ID", "it-inventory-system-ns6u.onrender.com")
-RP_NAME = "IT Inventory System"
 
 # --- DATABASE CONNECTION ---
 def get_db_connection():
@@ -51,6 +37,7 @@ def check_admin_exists():
 def index():
     if not check_admin_exists():
         return redirect('/setup-admin')
+    # Automatically redirect unauthenticated visitors to login page
     if 'user_id' not in session:
         return redirect('/login')
     return render_template('index.html', user=session.get('user'))
@@ -156,34 +143,6 @@ def login_password():
     finally:
         conn.close()
 
-# --- BIOMETRIC / FINGERPRINT WEBAUTHN ENDPOINTS ---
-@app.route('/api/webauthn/register-options', methods=['POST'])
-def webauthn_register_options():
-    if 'user_id' not in session:
-        return jsonify({"status": "error", "message": "Unauthorized"}), 401
-    
-    user = session['user']
-    options = generate_registration_options(
-        rp_id=RP_ID,
-        rp_name=RP_NAME,
-        user_id=str(user['id']).encode('utf-8'),
-        user_name=user['username'],
-        authenticator_selection=AuthenticatorSelectionCriteria(
-            user_verification=UserVerificationRequirement.PREFERRED
-        )
-    )
-    session['register_challenge'] = options.challenge
-    return options.json()
-
-@app.route('/api/webauthn/login-options', methods=['POST'])
-def webauthn_login_options():
-    options = generate_authentication_options(
-        rp_id=RP_ID,
-        user_verification=UserVerificationRequirement.PREFERRED
-    )
-    session['auth_challenge'] = options.challenge
-    return options.json()
-
 # --- INVENTORY API (21-FIELD CRUD) ---
 @app.route('/api/inventory', methods=['GET', 'POST'])
 def handle_inventory():
@@ -217,7 +176,6 @@ def handle_inventory():
                     data.get('serial_hdd_all'), data.get('description_specs'), parse_date(data.get('date_issued')), data.get('unit_age'),
                     parse_date(data.get('depreciation_date')), data.get('findings'), data.get('fa_number'), data.get('mac_address'),
                     data.get('action_taken'), data.get('remarks'), data.get('tech_support'),
-                    # Values for ON DUPLICATE KEY UPDATE
                     data.get('it_business_name'), data.get('system_unit'), data.get('issued_company_owned'), data.get('employee_name'),
                     parse_date(data.get('date_visited')), data.get('model_brand'), data.get('ram'), data.get('storage_capacity'),
                     data.get('serial_hdd_all'), data.get('description_specs'), parse_date(data.get('date_issued')), data.get('unit_age'),
