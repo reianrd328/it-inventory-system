@@ -5,33 +5,109 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - IT Inventory System</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-card { background: #1e293b; padding: 35px 30px; border-radius: 12px; width: 100%; max-width: 380px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); text-align: center; border: 1px solid #334155; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { 
+            background: #0f172a; 
+            color: #f8fafc; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+        }
+        .login-card { 
+            background: #1e293b; 
+            padding: 35px 30px; 
+            border-radius: 12px; 
+            width: 100%; 
+            max-width: 380px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5); 
+            text-align: center; 
+            border: 1px solid #334155;
+        }
         h2 { margin-top: 0; margin-bottom: 20px; color: #38bdf8; font-size: 22px; }
         .form-group { text-align: left; margin-bottom: 18px; }
-        label { display: block; font-size: 13px; margin-bottom: 6px; color: #cbd5e1; }
-        input { width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; background: #0284c7; color: white; margin-top: 10px; }
-        button:hover { background: #0369a1; }
+        label { display: block; font-size: 13px; margin-bottom: 6px; color: #cbd5e1; font-weight: 500; }
+        input { 
+            width: 100%; 
+            padding: 10px 12px; 
+            border-radius: 6px; 
+            border: 1px solid #334155; 
+            background: #0f172a; 
+            color: white; 
+            font-size: 14px;
+            outline: none;
+        }
+        input:focus { border-color: #38bdf8; }
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            border: none; 
+            border-radius: 6px; 
+            font-weight: bold; 
+            font-size: 14px;
+            cursor: pointer; 
+            margin-top: 10px; 
+            transition: background 0.2s; 
+        }
+        .btn-primary { background: #0284c7; color: white; }
+        .btn-primary:hover { background: #0369a1; }
+        .btn-bio { 
+            background: #10b981; 
+            color: white; 
+            margin-top: 15px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+        }
+        .btn-bio:hover { background: #059669; }
+        .alert { 
+            padding: 10px; 
+            border-radius: 6px; 
+            font-size: 13px; 
+            margin-bottom: 15px; 
+            display: none; 
+        }
+        .alert-error { background: #7f1d1d; color: #fca5a5; }
+        .alert-success { background: #064e3b; color: #6ee7b7; }
     </style>
 </head>
 <body>
+
     <div class="login-card">
         <h2>🔒 IT System Sign In</h2>
+        
+        <div id="alertBox" class="alert"></div>
+
+        <!-- LOGIN FORM -->
         <form id="loginForm">
             <div class="form-group">
                 <label>Username</label>
-                <input type="text" id="login_username" required>
+                <input type="text" id="login_username" required autocomplete="username">
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" id="login_password" required>
+                <input type="password" id="login_password" required autocomplete="current-password">
             </div>
-            <button type="submit">Sign In</button>
+            <button type="submit" class="btn-primary">Sign In</button>
         </form>
+
+        <!-- BIOMETRIC FINGERPRINT LOGIN BUTTON -->
+        <button type="button" id="btnBiometricLogin" class="btn-bio">
+            👆 Sign In with Fingerprint / Touch ID
+        </button>
     </div>
 
     <script>
+        function showAlert(msg, isSuccess = false) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.innerText = msg;
+            alertBox.className = 'alert ' + (isSuccess ? 'alert-success' : 'alert-error');
+            alertBox.style.display = 'block';
+        }
+
+        // --- PASSWORD LOGIN SUBMISSION ---
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const res = await fetch('/api/login/password', {
@@ -46,7 +122,24 @@
             if (res.ok) {
                 window.location.href = '/';
             } else {
-                alert(data.message || 'Login failed.');
+                showAlert(data.message || 'Login failed.');
+            }
+        });
+
+        // --- BIOMETRIC FINGERPRINT LOGIN HANDLER ---
+        document.getElementById('btnBiometricLogin').addEventListener('click', async () => {
+            try {
+                const optRes = await fetch('/api/webauthn/login-options', { method: 'POST' });
+                const options = await optRes.json();
+                
+                options.challenge = Uint8Array.from(atob(options.challenge), c => c.charCodeAt(0));
+
+                const assertion = await navigator.credentials.get({ publicKey: options });
+                if (assertion) {
+                    window.location.href = '/';
+                }
+            } catch (err) {
+                showAlert('Biometric login failed or canceled on this device.');
             }
         });
     </script>
