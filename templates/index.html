@@ -16,8 +16,6 @@
         input, select, textarea { padding: 8px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
         button { background: #0056b3; color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; margin-top: 15px; }
         button:hover { background: #003d80; }
-        .btn-bio { background: #10b981; margin-top: 0; padding: 8px 15px; font-size: 13px; }
-        .btn-bio:hover { background: #059669; }
         .btn-print { background: #28a745; margin-top: 0; }
         .btn-print:hover { background: #1e7e34; }
         .btn-danger { background: #dc3545; padding: 8px 15px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 13px; color: white; }
@@ -44,7 +42,6 @@
             <h2>🖥️ IT Inventory & Checking System</h2>
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span style="font-size: 14px;">👤 <strong>{{ user.full_name or user.username }}</strong> ({{ user.role }})</span>
-                <button id="btnRegisterBiometric" class="btn-bio">👆 Register Fingerprint</button>
                 <a href="/logout" class="btn-danger">Logout 🚪</a>
             </div>
         </div>
@@ -140,18 +137,34 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', loadInventory);
+        document.addEventListener('DOMContentLoaded', () => {
+            loadInventory();
+            initIdleTimer();
+        });
 
-        // --- Base64URL Decoders for WebAuthn ---
-        function base64UrlToBuffer(base64url) {
-            let padding = '='.repeat((4 - base64url.length % 4) % 4);
-            let base64 = (base64url + padding).replace(/\-/g, '+').replace(/_/g, '/');
-            let rawData = window.atob(base64);
-            let outputArray = new Uint8Array(rawData.length);
-            for (let i = 0; i < rawData.length; ++i) {
-                outputArray[i] = rawData.charCodeAt(i);
-            }
-            return outputArray.buffer;
+        // --- 1-MINUTE IDLE AUTO-LOGOUT SCRIPT ---
+        let idleTimer;
+        const IDLE_LIMIT = 60 * 1000; // 60 Seconds (1 Minute)
+
+        function resetIdleTimer() {
+            clearTimeout(idleTimer);
+            idleTimer = setTimeout(autoLogout, IDLE_LIMIT);
+        }
+
+        function autoLogout() {
+            alert('Session expired due to 1 minute of inactivity.');
+            window.location.href = '/logout';
+        }
+
+        function initIdleTimer() {
+            // Listen for user interactions across the page
+            window.onload = resetIdleTimer;
+            window.onmousemove = resetIdleTimer;
+            window.onmousedown = resetIdleTimer;
+            window.ontouchstart = resetIdleTimer;
+            window.onclick = resetIdleTimer;
+            window.onkeydown = resetIdleTimer;
+            window.addEventListener('scroll', resetIdleTimer, true);
         }
 
         // --- Super Admin User Creation ---
@@ -174,35 +187,6 @@
                 if (res.ok) createUserForm.reset();
             });
         }
-
-        // --- Biometric Fingerprint Registration Handler ---
-        document.getElementById('btnRegisterBiometric')?.addEventListener('click', async () => {
-            try {
-                const optRes = await fetch('/api/webauthn/register-options', { method: 'POST' });
-                if (!optRes.ok) throw new Error("Failed to load options");
-                
-                const options = await optRes.json();
-                
-                // Convert Base64URL strings to ArrayBuffers expected by browser API
-                options.challenge = base64UrlToBuffer(options.challenge);
-                options.user.id = base64UrlToBuffer(options.user.id);
-
-                if (options.excludeCredentials) {
-                    options.excludeCredentials = options.excludeCredentials.map(c => ({
-                        ...c,
-                        id: base64UrlToBuffer(c.id)
-                    }));
-                }
-
-                const credential = await navigator.credentials.create({ publicKey: options });
-                if (credential) {
-                    alert('Fingerprint successfully registered to your account!');
-                }
-            } catch (err) {
-                console.error(err);
-                alert('Fingerprint registration canceled or unsupported on this device.');
-            }
-        });
 
         // --- Inventory Form Submission Handler ---
         document.getElementById('inventoryForm').addEventListener('submit', async (e) => {
