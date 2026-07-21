@@ -1,22 +1,10 @@
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 import pymysql
 import os
-import json
-import base64
 from werkzeug.security import generate_password_hash, check_password_hash
-from webauthn import (
-    generate_registration_options,
-    verify_registration_response,
-    generate_authentication_options,
-    verify_authentication_response
-)
-from webauthn.helpers.structs import PublicKeyCredentialDescriptor, AuthenticatorSelectionCriteria, UserVerificationRequirement
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "super_secret_it_inventory_key_2026")
-
-RP_ID = "it-inventory-system-ns6u.onrender.com"  # Your Render host domain
-RP_NAME = "IT Inventory System"
 
 def get_db_connection():
     return pymysql.connect(
@@ -28,29 +16,53 @@ def get_db_connection():
         ssl={'ssl': {}}
     )
 
+# Check if any user exists in database
+def check_admin_exists():
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT COUNT(*) FROM users")
+            count = cursor.fetchone()[0]
+            return count > 0
+    finally:
+        conn.close()
+
 # --- ROUTE PROTECTIONS ---
 @app.route('/')
 def index():
+    if not check_admin_exists():
+        return redirect('/setup-admin')
     if 'user_id' not in session:
         return redirect('/login')
     return render_template('index.html', user=session.get('user'))
 
 @app.route('/login')
 def login_page():
+    if not check_admin_exists():
+        return redirect('/setup-admin')
     return render_template('login.html')
+
+@app.route('/setup-admin')
+def setup_admin_page():
+    if check_admin_exists():
+        return redirect('/login')
+    return render_template('setup_admin.html')
 
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect('/login')
 
-# --- PASSWORD AUTHENTICATION ---
-@app.route('/api/register', methods=['POST'])
-def register():
+# --- INITIAL SUPER ADMIN CREATION (Only works when database has 0 users) ---
+@app.route('/api/setup-super-admin', methods=['POST'])
+def setup_super_admin():
+    if check_admin_exists():
+        return jsonify({"status": "error", "message": "Super Admin already exists!"}), 400
+
     data = request.json
     username = data.get('username')
     password = data.get('password')
-    full_name = data.get('full_name', '')
+    full_name = data.get('full_name')
 
     if not username or not password:
         return jsonify({"status": "error", "message": "Username and password required"}), 400
@@ -59,15 +71,43 @@ def register():
     conn = get_db_connection()
     try:
         with conn.cursor() as cursor:
-            cursor.execute("INSERT INTO users (username, password_hash, full_name) VALUES (%s, %s, %s)",
-                           (username, pwd_hash, full_name))
+            cursor.execute(
+                "INSERT INTO users (username, password_hash, full_name, role) VALUES (%s, %s, %s, 'Super Admin')",
+                (username, pwd_hash, full_name)
+            )
         conn.commit()
-        return jsonify({"status": "success", "message": "Account created! You can now log in."})
-    except Exception as e:
-        return jsonify({"status": "error", "message": "Username already taken or database error"}), 400
+        return jsonify({"status": "success", "message": "Super Admin created successfully!"})
     finally:
         conn.close()
 
+# --- CREATE USER FROM DASHBOARD (Admin Only) ---
+@app.route('/api/users/create', methods=['POST'])
+def create_user_dashboard():
+    if 'user_id' not in session or session.get('user', {}).get('role') != 'Super Admin':
+        return jsonify({"status": "error", "message": "Unauthorized. Super Admin access required."}), 403
+
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    full_name = data.get('full_name')
+    role = data.get('role', 'Tech Support')
+
+    pwd_hash = generate_password_hash(password)
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "INSERT INTO users (username, password_hash, full_name, role) VALUES (%s, %s, %s, %s)",
+                (username, pwd_hash, full_name, role)
+            )
+        conn.commit()
+        return jsonify({"status": "success", "message": f"Account for {username} created successfully!"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": "Username already exists or error saving user."}), 400
+    finally:
+        conn.close()
+
+# --- PASSWORD LOGIN ---
 @app.route('/api/login/password', methods=['POST'])
 def login_password():
     data = request.json
@@ -82,31 +122,18 @@ def login_password():
 
         if user and check_password_hash(user['password_hash'], password):
             session['user_id'] = user['id']
-            session['user'] = {"id": user['id'], "username": user['username'], "full_name": user['full_name']}
+            session['user'] = {
+                "id": user['id'], 
+                "username": user['username'], 
+                "full_name": user['full_name'],
+                "role": user['role']
+            }
             return jsonify({"status": "success", "message": "Login successful!"})
         return jsonify({"status": "error", "message": "Invalid username or password"}), 401
     finally:
         conn.close()
 
-# --- BIOMETRIC / FINGERPRINT WEBAUTHN ENDPOINTS ---
-@app.route('/api/webauthn/register-options', methods=['POST'])
-def webauthn_register_options():
-    if 'user_id' not in session:
-        return jsonify({"error": "Unauthorized"}), 401
-    
-    user = session['user']
-    options = generate_registration_options(
-        rp_id=RP_ID,
-        rp_name=RP_NAME,
-        user_id=str(user['id']).encode('utf-8'),
-        user_name=user['username'],
-        authenticator_selection=AuthenticatorSelectionCriteria(
-            user_verification=UserVerificationRequirement.PREFERRED
-        )
-    )
-    session['register_challenge'] = options.challenge
-    return options.json()
-
+# --- INVENTORY API ---
 @app.route('/api/inventory', methods=['GET', 'POST'])
 def handle_inventory():
     if 'user_id' not in session:
