@@ -93,8 +93,8 @@
             <button type="submit" class="btn-primary">Sign In</button>
         </form>
 
-        <!-- BIOMETRIC FINGERPRINT LOGIN BUTTON -->
-        <button type="button" id="btnBiometricLogin" class="btn-bio">
+        <!-- BIOMETRIC FINGERPRINT LOGIN BUTTON (Controlled by JS Detection) -->
+        <button type="button" id="btnBiometricLogin" class="btn-bio" style="display: none;">
             👆 Sign In with Fingerprint / Touch ID
         </button>
     </div>
@@ -106,6 +106,18 @@
             alertBox.className = 'alert ' + (isSuccess ? 'alert-success' : 'alert-error');
             alertBox.style.display = 'block';
         }
+
+        // --- AUTO-DETECT FINGERPRINT HARDWARE ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            const bioBtn = document.getElementById('btnBiometricLogin');
+            
+            // Check if WebAuthn & hardware sensors exist on the machine
+            if (window.PublicKeyCredential && await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()) {
+                bioBtn.style.display = "flex"; // Reveal button if hardware scanner is present
+            } else {
+                bioBtn.style.display = "none"; // Hide button if no hardware scanner is detected
+            }
+        });
 
         // --- PASSWORD LOGIN SUBMISSION ---
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -139,7 +151,7 @@
                     window.location.href = '/';
                 }
             } catch (err) {
-                showAlert('Biometric login failed or canceled on this device.');
+                showAlert('Fingerprint scan canceled, or no fingerprint is registered for this user yet. Log in with password first to register your fingerprint inside the dashboard.');
             }
         });
     </script>
