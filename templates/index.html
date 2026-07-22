@@ -15,6 +15,7 @@
         .form-group.full-width { grid-column: 1 / -1; }
         label { font-weight: 600; margin-bottom: 5px; font-size: 13px; color: #444; }
         input, select, textarea { padding: 8px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        .readonly-input { background: #f1f5f9; cursor: not-allowed; }
         button { background: #0056b3; color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; margin-top: 15px; }
         button:hover { background: #003d80; }
         .btn-excel { background: #10b981; margin-top: 0; }
@@ -116,15 +117,24 @@
                         </select>
                     </div>
                     <div class="form-group"><label>Employee's Name</label><input type="text" id="employee_name"></div>
-                    <div class="form-group"><label>Date Visited</label><input type="date" id="date_visited"></div>
+                    <div class="form-group"><label>Date Visited</label><input type="date" id="date_visited" onchange="calculateDates()"></div>
                     <div class="form-group"><label>IT Code *</label><input type="text" id="it_code" required placeholder="Unique Asset Tag"></div>
                     <div class="form-group"><label>Model / Brand</label><input type="text" id="model_brand"></div>
                     <div class="form-group"><label>RAM</label><input type="text" id="ram" placeholder="Ex: 16GB DDR4"></div>
                     <div class="form-group"><label>Storage Capacity</label><input type="text" id="storage_capacity" placeholder="Ex: 512GB NVMe SSD"></div>
                     <div class="form-group"><label>Serial (HDD & All Unit)</label><input type="text" id="serial_hdd_all"></div>
-                    <div class="form-group"><label>Date Issued</label><input type="date" id="date_issued"></div>
-                    <div class="form-group"><label>Unit Age</label><input type="text" id="unit_age" placeholder="Ex: 2 Years 3 Months"></div>
-                    <div class="form-group"><label>Depreciation Date</label><input type="date" id="depreciation_date"></div>
+                    <div class="form-group"><label>Date Issued</label><input type="date" id="date_issued" onchange="calculateDates()"></div>
+                    
+                    <!-- AUTOMATICALLY CALCULATED FIELDS -->
+                    <div class="form-group">
+                        <label>Unit Age (Auto)</label>
+                        <input type="text" id="unit_age" class="readonly-input" placeholder="Auto-computed" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Depreciation Date (+5 Yrs Auto)</label>
+                        <input type="date" id="depreciation_date" class="readonly-input" readonly>
+                    </div>
+
                     <div class="form-group"><label>FA # (Fixed Asset No.)</label><input type="text" id="fa_number"></div>
                     <div class="form-group"><label>MAC Address</label><input type="text" id="mac_address" placeholder="00-1A-2B-3C-4D-5E"></div>
                     <div class="form-group"><label>Tech Support</label><input type="text" id="tech_support" value="{{ user.full_name or user.username }}"></div>
@@ -173,6 +183,53 @@
             loadInventory();
             initIdleTimer();
         });
+
+        // --- AUTOMATIC DATE CALCULATIONS ---
+        function calculateDates() {
+            const visitedVal = document.getElementById('date_visited').value;
+            const issuedVal = document.getElementById('date_issued').value;
+
+            // 1. Compute Depreciation Date (Date Issued + 5 Years)
+            if (issuedVal) {
+                const issuedDate = new Date(issuedVal);
+                const depreciationDate = new Date(issuedDate);
+                depreciationDate.setFullYear(depreciationDate.getFullYear() + 5);
+
+                const year = depreciationDate.getFullYear();
+                const month = String(depreciationDate.getMonth() + 1).padStart(2, '0');
+                const day = String(depreciationDate.getDate()).padStart(2, '0');
+
+                document.getElementById('depreciation_date').value = `${year}-${month}-${day}`;
+            } else {
+                document.getElementById('depreciation_date').value = '';
+            }
+
+            // 2. Compute Unit Age (Date Visited - Date Issued)
+            if (visitedVal && issuedVal) {
+                const visitedDate = new Date(visitedVal);
+                const issuedDate = new Date(issuedVal);
+
+                if (visitedDate >= issuedDate) {
+                    let years = visitedDate.getFullYear() - issuedDate.getFullYear();
+                    let months = visitedDate.getMonth() - issuedDate.getMonth();
+
+                    if (months < 0) {
+                        years--;
+                        months += 12;
+                    }
+
+                    let ageText = '';
+                    if (years > 0) ageText += `${years} Year${years > 1 ? 's' : ''} `;
+                    if (months >= 0) ageText += `${months} Month${months !== 1 ? 's' : ''}`;
+
+                    document.getElementById('unit_age').value = ageText.trim();
+                } else {
+                    document.getElementById('unit_age').value = 'Invalid Date Sequence';
+                }
+            } else {
+                document.getElementById('unit_age').value = '';
+            }
+        }
 
         // --- 1-MINUTE IDLE AUTO-LOGOUT SCRIPT ---
         let idleTimer;
@@ -278,6 +335,9 @@
             if (res.ok) {
                 alert('Record saved successfully!');
                 document.getElementById('inventoryForm').reset();
+                // Clear auto-computed fields after reset
+                document.getElementById('unit_age').value = '';
+                document.getElementById('depreciation_date').value = '';
                 loadInventory();
             } else {
                 alert('Failed to save record.');
