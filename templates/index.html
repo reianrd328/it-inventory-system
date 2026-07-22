@@ -9,6 +9,7 @@
         .container { max-width: 1300px; margin: 0 auto; }
         .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
         .admin-card { border-left: 5px solid #0284c7; background: #f0f9ff; }
+        .export-card { border-left: 5px solid #10b981; background: #f0fdf4; }
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
         .form-group { display: flex; flex-direction: column; }
         .form-group.full-width { grid-column: 1 / -1; }
@@ -16,6 +17,8 @@
         input, select, textarea { padding: 8px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
         button { background: #0056b3; color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; margin-top: 15px; }
         button:hover { background: #003d80; }
+        .btn-excel { background: #10b981; margin-top: 0; }
+        .btn-excel:hover { background: #059669; }
         .btn-print { background: #28a745; margin-top: 0; }
         .btn-print:hover { background: #1e7e34; }
         .btn-danger { background: #dc3545; padding: 8px 15px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 13px; color: white; }
@@ -67,6 +70,35 @@
             </form>
         </div>
         {% endif %}
+
+        <!-- EXPORT TO EXCEL CONTROL CARD -->
+        <div class="card export-card no-print">
+            <h3 style="margin-top: 0; color: #166534;">📊 Export Inventory to Excel</h3>
+            <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+                <div class="form-group">
+                    <label>Export Filter Mode</label>
+                    <select id="export_mode" onchange="toggleExportInputs()">
+                        <option value="all">Export All Records</option>
+                        <option value="day">Export by Day (Date Visited)</option>
+                        <option value="month">Export by Month (Date Visited)</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="group_export_date" style="display: none;">
+                    <label>Select Date</label>
+                    <input type="date" id="export_date">
+                </div>
+
+                <div class="form-group" id="group_export_month" style="display: none;">
+                    <label>Select Month</label>
+                    <input type="month" id="export_month">
+                </div>
+
+                <button type="button" class="btn-excel" onclick="downloadExcel()">
+                    📥 Download Excel (.xlsx)
+                </button>
+            </div>
+        </div>
 
         <!-- Entry Form for 21 IT Inventory Fields -->
         <div class="card no-print">
@@ -157,7 +189,6 @@
         }
 
         function initIdleTimer() {
-            // Listen for user interactions across the page
             window.onload = resetIdleTimer;
             window.onmousemove = resetIdleTimer;
             window.onmousedown = resetIdleTimer;
@@ -165,6 +196,30 @@
             window.onclick = resetIdleTimer;
             window.onkeydown = resetIdleTimer;
             window.addEventListener('scroll', resetIdleTimer, true);
+        }
+
+        // --- EXPORT TO EXCEL TOGGLE & DOWNLOAD ---
+        function toggleExportInputs() {
+            const mode = document.getElementById('export_mode').value;
+            document.getElementById('group_export_date').style.display = (mode === 'day') ? 'flex' : 'none';
+            document.getElementById('group_export_month').style.display = (mode === 'month') ? 'flex' : 'none';
+        }
+
+        function downloadExcel() {
+            const mode = document.getElementById('export_mode').value;
+            let url = `/api/inventory/export?filter_type=${mode}`;
+
+            if (mode === 'day') {
+                const dateVal = document.getElementById('export_date').value;
+                if (!dateVal) return alert('Please select a date to export!');
+                url += `&date=${dateVal}`;
+            } else if (mode === 'month') {
+                const monthVal = document.getElementById('export_month').value;
+                if (!monthVal) return alert('Please select a month to export!');
+                url += `&month=${monthVal}`;
+            }
+
+            window.location.href = url;
         }
 
         // --- Super Admin User Creation ---
