@@ -41,49 +41,115 @@
 
         @media print {
             .no-print { display: none !important; }
-            body { background: white; margin: 0; padding: 0; font-size: 10pt; color: #000; }
-            .card { box-shadow: none; padding: 0; margin: 0; }
+            body { background: white; margin: 0; padding: 0; color: #000; font-family: Arial, sans-serif; }
             
-            /* Show PM Template when printing */
-            .pm-template { 
-                display: block !important; 
-                width: 100%; 
-                font-family: Arial, sans-serif;
+            .pm-template { display: block !important; width: 100%; }
+
+            /* SINGLE FORM LAYOUT (Half Page Height) */
+            .pm-form-instance {
+                height: 48vh;
+                box-sizing: border-box;
+                padding: 5px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
             }
 
-            .pm-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 15px; }
-            .pm-header h2 { margin: 0; font-size: 16pt; text-transform: uppercase; }
-            .pm-header p { margin: 4px 0 0 0; font-size: 9pt; color: #333; }
-
-            .pm-section-title { 
-                font-weight: bold; 
-                font-size: 10pt; 
-                background: #e2e8f0; 
-                padding: 4px 8px; 
-                border: 1px solid #000; 
-                margin-top: 12px; 
-                margin-bottom: 4px; 
+            .cut-line {
+                text-align: center;
+                font-size: 8pt;
+                border-top: 1px dashed #666;
+                margin: 4px 0;
+                padding-top: 2px;
+                color: #555;
             }
 
-            table.pm-table { 
-                width: 100%; 
-                border-collapse: collapse; 
-                margin-bottom: 8px; 
-                font-size: 9pt; 
+            /* FORM HEADER TABLE */
+            table.pm-header-tbl {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 4px;
+            }
+            table.pm-header-tbl td {
+                border: 1px solid #000;
+                padding: 2px 4px;
+                font-size: 7.5pt;
+            }
+            .brand-cell {
+                width: 25%;
+                font-weight: bold;
+                font-size: 12pt;
+                color: #8b0000;
+                text-align: center;
+            }
+            .title-cell {
+                font-weight: bold;
+                font-size: 9.5pt;
+                text-align: center;
+                text-transform: uppercase;
+                background: #f5f5f5;
             }
 
-            table.pm-table td, table.pm-table th { 
-                border: 1px solid #000; 
-                padding: 5px 8px; 
+            /* METADATA FIELDS TABLE */
+            table.pm-meta-tbl {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 4px;
+            }
+            table.pm-meta-tbl td {
+                border: 1px solid #000;
+                padding: 2px 4px;
+                font-size: 7.5pt;
             }
 
-            table.pm-table th { background: #f1f5f9; text-align: left; }
+            /* CHECKLIST GRID CONTAINER */
+            .pm-grid {
+                display: flex;
+                gap: 5px;
+                margin-bottom: 4px;
+            }
+            .pm-grid-left { width: 52%; }
+            .pm-grid-right { width: 48%; display: flex; flex-direction: column; justify-content: space-between; }
 
-            .pm-box { border: 1px solid #000; padding: 8px; font-size: 9.5pt; margin-bottom: 8px; min-height: 40px; }
+            /* CHECKLIST TABLES */
+            table.pm-chk-tbl {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 6.8pt;
+            }
+            table.pm-chk-tbl th, table.pm-chk-tbl td {
+                border: 1px solid #000;
+                padding: 1.5px 3px;
+            }
+            table.pm-chk-tbl th {
+                background: #e2e8f0;
+                font-weight: bold;
+                text-align: left;
+            }
+            .chk-mark { text-align: center; width: 15px; font-weight: bold; }
 
-            .pm-signatures { display: flex; justify-content: space-between; margin-top: 40px; }
-            .sig-box { width: 42%; text-align: center; font-size: 9.5pt; }
-            .sig-line { border-bottom: 1px solid #000; margin-bottom: 5px; height: 30px; }
+            /* REMARKS & SIGNATURE BOXES */
+            .remarks-box {
+                border: 1px solid #000;
+                padding: 3px;
+                font-size: 7pt;
+                height: 60px;
+            }
+            .remarks-title { font-weight: bold; color: #8b0000; margin-bottom: 2px; }
+
+            table.pm-sig-tbl {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 4px;
+            }
+            table.pm-sig-tbl td {
+                border: 1px solid #000;
+                height: 32px;
+                text-align: center;
+                vertical-align: bottom;
+                font-size: 6.5pt;
+                padding-bottom: 2px;
+            }
         }
     </style>
 </head>
@@ -154,8 +220,8 @@
             <h3 id="formTitle">Record Unit / Maintenance Report</h3>
             <form id="inventoryForm">
                 <div class="form-grid">
-                    <div class="form-group"><label>IT Business Name</label><input type="text" id="it_business_name"></div>
-                    <div class="form-group"><label>System Unit</label><input type="text" id="system_unit" placeholder="Ex: Desktop / Laptop"></div>
+                    <div class="form-group"><label>IT Business Name / Branch</label><input type="text" id="it_business_name"></div>
+                    <div class="form-group"><label>System Unit / Computer Name</label><input type="text" id="system_unit" placeholder="Ex: Desktop / Laptop"></div>
                     <div class="form-group">
                         <label>Issued / Company Owned</label>
                         <select id="issued_company_owned">
@@ -226,98 +292,214 @@
             </div>
         </div>
 
-        <!-- PRINTABLE PREVENTIVE MAINTENANCE CHECKLIST FORM (Appears only on print) -->
+        <!-- PRINTABLE EXACT RAQUEL PAWNSHOP FORM TEMPLATE (2 COPIES ON ONE PAGE) -->
         <div id="pmPrintSheet" class="pm-template">
-            <div class="pm-header">
-                <h2>PREVENTIVE COMPUTER MAINTENANCE REPORT</h2>
-                <p>IT Department Service Checklist & Proof of Inspection</p>
-            </div>
+            <!-- COPY 1: TOP HALF -->
+            <div class="pm-form-instance">
+                <div>
+                    <table class="pm-header-tbl">
+                        <tr>
+                            <td class="brand-cell" rowspan="2">RAQUEL</td>
+                            <td class="title-cell" rowspan="2">PREVENTIVE COMPUTER MAINTENANCE FORM</td>
+                            <td><strong>Revision Date:</strong> August 24, 2020</td>
+                            <td><strong>Code:</strong> ITD Form 001.01</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Effective Date:</strong> August 24, 2020</td>
+                            <td><strong>Control No.:</strong></td>
+                        </tr>
+                    </table>
 
-            <div class="pm-section-title">1. General Information</div>
-            <table class="pm-table">
-                <tr>
-                    <td><strong>Business Name:</strong> <span id="pm_business"></span></td>
-                    <td><strong>Date Visited:</strong> <span id="pm_date_visited"></span></td>
-                </tr>
-                <tr>
-                    <td><strong>User / Employee:</strong> <span id="pm_employee"></span></td>
-                    <td><strong>IT Asset Tag:</strong> <span id="pm_it_code"></span></td>
-                </tr>
-                <tr>
-                    <td><strong>System Unit:</strong> <span id="pm_system_unit"></span></td>
-                    <td><strong>Model / Brand:</strong> <span id="pm_model_brand"></span></td>
-                </tr>
-                <tr>
-                    <td><strong>FA # (Fixed Asset):</strong> <span id="pm_fa_number"></span></td>
-                    <td><strong>MAC Address:</strong> <span id="pm_mac_address"></span></td>
-                </tr>
-            </table>
+                    <table class="pm-meta-tbl">
+                        <tr>
+                            <td style="width: 45%;"><strong>Branch/Department:</strong> <span class="pm_val_branch"></span></td>
+                            <td style="width: 30%;"><strong>Date:</strong> <span class="pm_val_date"></span></td>
+                            <td style="width: 25%;"><strong>Time Arrived:</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Computer Name:</strong> <span class="pm_val_comp"></span></td>
+                            <td><strong>Fixed Asset No.:</strong> <span class="pm_val_fa"></span></td>
+                            <td><strong>Date Issued/Acquired:</strong> <span class="pm_val_issued"></span></td>
+                        </tr>
+                    </table>
 
-            <div class="pm-section-title">2. Hardware Specifications & Identification</div>
-            <table class="pm-table">
-                <tr>
-                    <td><strong>RAM:</strong> <span id="pm_ram"></span></td>
-                    <td><strong>Storage:</strong> <span id="pm_storage"></span></td>
-                </tr>
-                <tr>
-                    <td colspan="2"><strong>Serial Numbers (HDD / Unit):</strong> <span id="pm_serials"></span></td>
-                </tr>
-            </table>
+                    <div class="pm-grid">
+                        <!-- LEFT: Hardware Cleanup Checklist -->
+                        <div class="pm-grid-left">
+                            <table class="pm-chk-tbl">
+                                <thead>
+                                    <tr>
+                                        <th colspan="3" style="background:#e2e8f0; text-align:center;">Hardware Cleanup Checklist:</th>
+                                    </tr>
+                                    <tr>
+                                        <th>Component</th>
+                                        <th class="chk-mark">✓</th>
+                                        <th>To do</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>Fan/ Fan intakes</td><td class="chk-mark">✓</td><td>Remove dust using compressed air</td></tr>
+                                    <tr><td>Power Supply</td><td class="chk-mark">✓</td><td>Remove dust using compressed air</td></tr>
+                                    <tr><td>Heat sink</td><td class="chk-mark">✓</td><td>Use compressed air and wipe off</td></tr>
+                                    <tr><td>RAM</td><td class="chk-mark">✓</td><td>Use compressed air and wipe off</td></tr>
+                                    <tr><td>Adapter cards</td><td class="chk-mark">✓</td><td>Use compressed air and wipe off</td></tr>
+                                    <tr><td>Motherboard</td><td class="chk-mark">✓</td><td>Use compressed air and wipe off</td></tr>
+                                    <tr><td>Internal drives</td><td class="chk-mark">✓</td><td>Use compressed air and wipe off</td></tr>
+                                    <tr><td>Peripherals (mouse, keyboard, monitor)</td><td class="chk-mark">✓</td><td>Use appropriate solution to clean off</td></tr>
+                                    <tr><td>Checked for loose parts and missing components</td><td class="chk-mark">✓</td><td>Inspect all screws, cables and other slots</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
 
-            <div class="pm-section-title">3. Standard Maintenance Routine Checklist</div>
-            <table class="pm-table">
-                <thead>
-                    <tr>
-                        <th>Routine Task</th>
-                        <th style="width: 15%;">Status</th>
-                        <th>Remarks / Scope</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Physical Dust Cleaning (Chassis, Fans, Heat Sinks, Power Supply)</td>
-                        <td>[ ✓ ] PASSED</td>
-                        <td>Internal & external dust removal done</td>
-                    </tr>
-                    <tr>
-                        <td>Storage Drive Health Scan & Defragmentation / TRIM Optimization</td>
-                        <td>[ ✓ ] PASSED</td>
-                        <td>Disk health verified, temp files purged</td>
-                    </tr>
-                    <tr>
-                        <td>OS System Updates, Patch Checks & Antivirus Scan</td>
-                        <td>[ ✓ ] PASSED</td>
-                        <td>Defenders updated & scan performed</td>
-                    </tr>
-                    <tr>
-                        <td>Cable Management & Thermal Check</td>
-                        <td>[ ✓ ] PASSED</td>
-                        <td>Operating temperatures normal</td>
-                    </tr>
-                </tbody>
-            </table>
+                        <!-- RIGHT: Software Cleanup Checklist & Remarks -->
+                        <div class="pm-grid-right">
+                            <table class="pm-chk-tbl">
+                                <thead>
+                                    <tr>
+                                        <th colspan="3" style="background:#e2e8f0; text-align:center;">Software Cleanup Checklist:</th>
+                                    </tr>
+                                    <tr>
+                                        <th>Software</th>
+                                        <th class="chk-mark">✓</th>
+                                        <th>To do</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>Security updates</td><td class="chk-mark">✓</td><td>Review and install</td></tr>
+                                    <tr><td>Software updates</td><td class="chk-mark">✓</td><td>Review and install</td></tr>
+                                    <tr><td>Driver updates</td><td class="chk-mark">✓</td><td>Review and install</td></tr>
+                                    <tr><td>Virus definition files</td><td class="chk-mark">✓</td><td>Update</td></tr>
+                                    <tr><td>Software cleanup</td><td class="chk-mark">✓</td><td>Scan for viruses and spyware</td></tr>
+                                    <tr><td>Junk</td><td class="chk-mark">✓</td><td>Remove unwanted or unused programs</td></tr>
+                                    <tr><td>Non-SSD Hard Drives</td><td class="chk-mark">✓</td><td>Run defragmentation</td></tr>
+                                </tbody>
+                            </table>
 
-            <div class="pm-section-title">4. Technical Findings & Diagnostics</div>
-            <div class="pm-box">
-                <p id="pm_findings" style="margin:0;"></p>
-            </div>
-
-            <div class="pm-section-title">5. Action Taken & Service Resolution</div>
-            <div class="pm-box">
-                <p id="pm_action_taken" style="margin:0;"></p>
-            </div>
-
-            <div class="pm-signatures">
-                <div class="sig-box">
-                    <div class="sig-line"></div>
-                    <strong id="pm_tech_support"></strong><br>
-                    <small>IT Technical Support Engineer</small>
+                            <div class="remarks-box">
+                                <div class="remarks-title">Remarks: Computer's Performance/ Recommendation:</div>
+                                <span class="pm_val_remarks"></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="sig-box">
-                    <div class="sig-line"></div>
-                    <strong id="pm_client_sign"></strong><br>
-                    <small>Employee / User (Proof of Turnover & Satisfaction)</small>
+
+                <!-- SIGNATURES -->
+                <table class="pm-sig-tbl">
+                    <tr>
+                        <td style="width: 50%;">
+                            <strong class="pm_val_tech"></strong><br>
+                            Technical Support Name & Signature
+                        </td>
+                        <td style="width: 50%;">
+                            <strong class="pm_val_user"></strong><br>
+                            Branch/ Dept. Personnel Name & Signature
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- CUT LINE -->
+            <div class="cut-line">✂ - - - - - - - - - - - - - - - - CUT HERE (FILE COPY / BRANCH COPY) - - - - - - - - - - - - - - - - ✂</div>
+
+            <!-- COPY 2: BOTTOM HALF -->
+            <div class="pm-form-instance">
+                <div>
+                    <table class="pm-header-tbl">
+                        <tr>
+                            <td class="brand-cell" rowspan="2">RAQUEL</td>
+                            <td class="title-cell" rowspan="2">PREVENTIVE COMPUTER MAINTENANCE FORM</td>
+                            <td><strong>Revision Date:</strong> August 24, 2020</td>
+                            <td><strong>Code:</strong> ITD Form 001.01</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Effective Date:</strong> August 24, 2020</td>
+                            <td><strong>Control No.:</strong></td>
+                        </tr>
+                    </table>
+
+                    <table class="pm-meta-tbl">
+                        <tr>
+                            <td style="width: 45%;"><strong>Branch/Department:</strong> <span class="pm_val_branch"></span></td>
+                            <td style="width: 30%;"><strong>Date:</strong> <span class="pm_val_date"></span></td>
+                            <td style="width: 25%;"><strong>Time Arrived:</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Computer Name:</strong> <span class="pm_val_comp"></span></td>
+                            <td><strong>Fixed Asset No.:</strong> <span class="pm_val_fa"></span></td>
+                            <td><strong>Date Issued/Acquired:</strong> <span class="pm_val_issued"></span></td>
+                        </tr>
+                    </table>
+
+                    <div class="pm-grid">
+                        <div class="pm-grid-left">
+                            <table class="pm-chk-tbl">
+                                <thead>
+                                    <tr>
+                                        <th colspan="3" style="background:#e2e8f0; text-align:center;">Hardware Cleanup Checklist:</th>
+                                    </tr>
+                                    <tr>
+                                        <th>Component</th>
+                                        <th class="chk-mark">✓</th>
+                                        <th>To do</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>Fan/ Fan intakes</td><td class="chk-mark">✓</td><td>Remove dust using compressed air</td></tr>
+                                    <tr><td>Power Supply</td><td class="chk-mark">✓</td><td>Remove dust using compressed air</td></tr>
+                                    <tr><td>Heat sink</td><td class="chk-mark">✓</td><td>Use compressed air and wipe off</td></tr>
+                                    <tr><td>RAM</td><td class="chk-mark">✓</td><td>Use compressed air and wipe off</td></tr>
+                                    <tr><td>Adapter cards</td><td class="chk-mark">✓</td><td>Use compressed air and wipe off</td></tr>
+                                    <tr><td>Motherboard</td><td class="chk-mark">✓</td><td>Use compressed air and wipe off</td></tr>
+                                    <tr><td>Internal drives</td><td class="chk-mark">✓</td><td>Use compressed air and wipe off</td></tr>
+                                    <tr><td>Peripherals (mouse, keyboard, monitor)</td><td class="chk-mark">✓</td><td>Use appropriate solution to clean off</td></tr>
+                                    <tr><td>Checked for loose parts and missing components</td><td class="chk-mark">✓</td><td>Inspect all screws, cables and other slots</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="pm-grid-right">
+                            <table class="pm-chk-tbl">
+                                <thead>
+                                    <tr>
+                                        <th colspan="3" style="background:#e2e8f0; text-align:center;">Software Cleanup Checklist:</th>
+                                    </tr>
+                                    <tr>
+                                        <th>Software</th>
+                                        <th class="chk-mark">✓</th>
+                                        <th>To do</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>Security updates</td><td class="chk-mark">✓</td><td>Review and install</td></tr>
+                                    <tr><td>Software updates</td><td class="chk-mark">✓</td><td>Review and install</td></tr>
+                                    <tr><td>Driver updates</td><td class="chk-mark">✓</td><td>Review and install</td></tr>
+                                    <tr><td>Virus definition files</td><td class="chk-mark">✓</td><td>Update</td></tr>
+                                    <tr><td>Software cleanup</td><td class="chk-mark">✓</td><td>Scan for viruses and spyware</td></tr>
+                                    <tr><td>Junk</td><td class="chk-mark">✓</td><td>Remove unwanted or unused programs</td></tr>
+                                    <tr><td>Non-SSD Hard Drives</td><td class="chk-mark">✓</td><td>Run defragmentation</td></tr>
+                                </tbody>
+                            </table>
+
+                            <div class="remarks-box">
+                                <div class="remarks-title">Remarks: Computer's Performance/ Recommendation:</div>
+                                <span class="pm_val_remarks"></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                <table class="pm-sig-tbl">
+                    <tr>
+                        <td style="width: 50%;">
+                            <strong class="pm_val_tech"></strong><br>
+                            Technical Support Name & Signature
+                        </td>
+                        <td style="width: 50%;">
+                            <strong class="pm_val_user"></strong><br>
+                            Branch/ Dept. Personnel Name & Signature
+                        </td>
+                    </tr>
+                </table>
             </div>
         </div>
 
@@ -481,26 +663,23 @@
             if (res.ok) loadInventory();
         }
 
-        // --- PRINT PREVENTIVE MAINTENANCE REPORT HANDLER ---
+        // --- PRINT EXACT RAQUEL FORM HANDLER ---
         function printPMReport(itCode) {
             const item = rawInventoryData.find(i => i.it_code === itCode);
             if (!item) return;
 
-            document.getElementById('pm_business').innerText = item.it_business_name || 'N/A';
-            document.getElementById('pm_date_visited').innerText = item.date_visited || 'N/A';
-            document.getElementById('pm_employee').innerText = item.employee_name || 'N/A';
-            document.getElementById('pm_it_code').innerText = item.it_code;
-            document.getElementById('pm_system_unit').innerText = item.system_unit || 'N/A';
-            document.getElementById('pm_model_brand').innerText = item.model_brand || 'N/A';
-            document.getElementById('pm_fa_number').innerText = item.fa_number || 'N/A';
-            document.getElementById('pm_mac_address').innerText = item.mac_address || 'N/A';
-            document.getElementById('pm_ram').innerText = item.ram || 'N/A';
-            document.getElementById('pm_storage').innerText = item.storage_capacity || 'N/A';
-            document.getElementById('pm_serials').innerText = item.serial_hdd_all || 'N/A';
-            document.getElementById('pm_findings').innerText = item.findings || 'All system hardware and software components tested operating normally.';
-            document.getElementById('pm_action_taken').innerText = item.action_taken || 'Routine preventive maintenance inspection successfully completed.';
-            document.getElementById('pm_tech_support').innerText = item.tech_support || 'IT Technical Specialist';
-            document.getElementById('pm_client_sign').innerText = item.employee_name || 'Asset User / Client';
+            // Populate both top & bottom duplicate forms
+            document.querySelectorAll('.pm_val_branch').forEach(el => el.innerText = item.it_business_name || '');
+            document.querySelectorAll('.pm_val_date').forEach(el => el.innerText = item.date_visited || '');
+            document.querySelectorAll('.pm_val_comp').forEach(el => el.innerText = `${item.system_unit || ''} (${item.it_code})`);
+            document.querySelectorAll('.pm_val_fa').forEach(el => el.innerText = item.fa_number || 'N/A');
+            document.querySelectorAll('.pm_val_issued').forEach(el => el.innerText = item.date_issued || '');
+            
+            const remarksText = [item.findings, item.action_taken, item.remarks].filter(Boolean).join(' | ');
+            document.querySelectorAll('.pm_val_remarks').forEach(el => el.innerText = remarksText || 'Unit checked and maintained in optimal operating condition.');
+            
+            document.querySelectorAll('.pm_val_tech').forEach(el => el.innerText = item.tech_support || '');
+            document.querySelectorAll('.pm_val_user').forEach(el => el.innerText = item.employee_name || '');
 
             window.print();
         }
