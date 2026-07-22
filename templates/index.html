@@ -77,10 +77,15 @@
             }
             .brand-cell {
                 width: 25%;
-                font-weight: bold;
-                font-size: 12pt;
-                color: #8b0000;
                 text-align: center;
+                vertical-align: middle;
+                padding: 2px;
+            }
+            .brand-cell img {
+                max-width: 100%;
+                max-height: 38px;
+                display: block;
+                margin: 0 auto;
             }
             .title-cell {
                 font-weight: bold;
@@ -292,14 +297,16 @@
             </div>
         </div>
 
-        <!-- PRINTABLE EXACT RAQUEL PAWNSHOP FORM TEMPLATE (2 COPIES ON ONE PAGE) -->
+        <!-- PRINTABLE RAQUEL PAWNSHOP FORM TEMPLATE (2 COPIES WITH LOGO ON ONE PAGE) -->
         <div id="pmPrintSheet" class="pm-template">
             <!-- COPY 1: TOP HALF -->
             <div class="pm-form-instance">
                 <div>
                     <table class="pm-header-tbl">
                         <tr>
-                            <td class="brand-cell" rowspan="2">RAQUEL</td>
+                            <td class="brand-cell" rowspan="2">
+                                <img src="/static/logo.png" alt="Raquel Pawnshop Logo" onerror="this.src='{{ url_for('static', filename='logo.png') }}'">
+                            </td>
                             <td class="title-cell" rowspan="2">PREVENTIVE COMPUTER MAINTENANCE FORM</td>
                             <td><strong>Revision Date:</strong> August 24, 2020</td>
                             <td><strong>Code:</strong> ITD Form 001.01</td>
@@ -406,7 +413,9 @@
                 <div>
                     <table class="pm-header-tbl">
                         <tr>
-                            <td class="brand-cell" rowspan="2">RAQUEL</td>
+                            <td class="brand-cell" rowspan="2">
+                                <img src="/static/logo.png" alt="Raquel Pawnshop Logo" onerror="this.src='{{ url_for('static', filename='logo.png') }}'">
+                            </td>
                             <td class="title-cell" rowspan="2">PREVENTIVE COMPUTER MAINTENANCE FORM</td>
                             <td><strong>Revision Date:</strong> August 24, 2020</td>
                             <td><strong>Code:</strong> ITD Form 001.01</td>
