@@ -1,7 +1,9 @@
-from flask import Flask, request, jsonify, render_template, session, redirect, url_for
+from flask import Flask, request, jsonify, render_template, session, redirect, url_for, send_file
 import pymysql
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
+import openpyxl
+from io import BytesIO
 
 app = Flask(__name__)
 # Secret key used to encrypt user sessions
@@ -193,6 +195,99 @@ def handle_inventory():
                     for df in ['date_visited', 'date_issued', 'depreciation_date']:
                         if r[df]: r[df] = str(r[df])
             return jsonify(records)
+    finally:
+        conn.close()
+
+# --- EXPORT TO EXCEL ROUTE ---
+@app.route('/api/inventory/export', methods=['GET'])
+def export_excel():
+    if 'user_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    filter_type = request.args.get('filter_type', 'all')
+    filter_date = request.args.get('date', '')    # YYYY-MM-DD
+    filter_month = request.args.get('month', '')  # YYYY-MM
+
+    conn = get_db_connection()
+    try:
+        with conn.cursor(pymysql.cursors.DictCursor) as cursor:
+            sql = "SELECT * FROM it_inventory"
+            params = []
+
+            if filter_type == 'day' and filter_date:
+                sql += " WHERE DATE(date_visited) = %s"
+                params.append(filter_date)
+            elif filter_type == 'month' and filter_month:
+                sql += " WHERE DATE_FORMAT(date_visited, '%%Y-%%m') = %s"
+                params.append(filter_month)
+
+            sql += " ORDER BY date_visited DESC, id DESC"
+            cursor.execute(sql, params)
+            records = cursor.fetchall()
+
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "IT Inventory"
+
+        # Headers formatted in exact requested sequence
+        headers = [
+            "Business Name", "System Unit", "Issued/Company Owned", "Employee's Name",
+            "Date Visited", "IT Code", "Model / Brand", "RAM", "Storage Capacity",
+            "Serial (HDD&ALL UNIT)", "Description/ Specs", "Date Issued", "Unit Age",
+            "Depreciation date", "Findings", "FA #", "MAC Address", "Action Taken",
+            "Remarks", "Tech Support"
+        ]
+        ws.append(headers)
+
+        # Style header row (blue background, white bold text)
+        for col_num in range(1, len(headers) + 1):
+            cell = ws.cell(row=1, column=col_num)
+            cell.font = openpyxl.styles.Font(bold=True, color="FFFFFF")
+            cell.fill = openpyxl.styles.PatternFill(start_color="0284C7", end_color="0284C7", fill_type="solid")
+
+        for r in records:
+            def fmt_d(d): return str(d) if d else ""
+            row = [
+                r.get('it_business_name', ''),
+                r.get('system_unit', ''),
+                r.get('issued_company_owned', ''),
+                r.get('employee_name', ''),
+                fmt_d(r.get('date_visited')),
+                r.get('it_code', ''),
+                r.get('model_brand', ''),
+                r.get('ram', ''),
+                r.get('storage_capacity', ''),
+                r.get('serial_hdd_all', ''),
+                r.get('description_specs', ''),
+                fmt_d(r.get('date_issued')),
+                r.get('unit_age', ''),
+                fmt_d(r.get('depreciation_date')),
+                r.get('findings', ''),
+                r.get('fa_number', ''),
+                r.get('mac_address', ''),
+                r.get('action_taken', ''),
+                r.get('remarks', ''),
+                r.get('tech_support', '')
+            ]
+            ws.append(row)
+
+        # Auto-adjust column width
+        for col in ws.columns:
+            max_len = max(len(str(cell.value or '')) for cell in col)
+            col_letter = openpyxl.utils.get_column_letter(col[0].column)
+            ws.column_dimensions[col_letter].width = max(max_len + 3, 12)
+
+        excel_io = BytesIO()
+        wb.save(excel_io)
+        excel_io.seek(0)
+
+        filename = f"IT_Inventory_Report_{filter_type}.xlsx"
+        return send_file(
+            excel_io,
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            as_attachment=True,
+            download_name=filename
+        )
     finally:
         conn.close()
 
