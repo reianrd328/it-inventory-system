@@ -88,7 +88,7 @@ def setup_super_admin():
     finally:
         conn.close()
 
-# --- CREATE USER ROUTE (Admin Only from Dashboard) ---
+# --- CREATE USER ROUTE ---
 @app.route('/api/users/create', methods=['POST'])
 def create_user_dashboard():
     if 'user_id' not in session or session.get('user', {}).get('role') != 'Super Admin':
@@ -141,7 +141,7 @@ def login_password():
     finally:
         conn.close()
 
-# --- INVENTORY API (CRUD: Create, Read, Update) ---
+# --- INVENTORY API WITH NEW PERIPHERAL & SPEC FIELDS ---
 @app.route('/api/inventory', methods=['GET', 'POST'])
 def handle_inventory():
     if 'user_id' not in session:
@@ -158,14 +158,18 @@ def handle_inventory():
                     date_visited, it_code, model_brand, ram, storage_capacity,
                     serial_hdd_all, description_specs, date_issued, unit_age,
                     depreciation_date, findings, fa_number, mac_address,
-                    action_taken, remarks, tech_support
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    action_taken, remarks, tech_support,
+                    monitor_fa, keyboard_fa, mouse_fa, printer_fa, router_fa,
+                    webcam_fa, ups_fa, speedtest_profile, processor_cpu, os_version, hdd_capacity
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ON DUPLICATE KEY UPDATE
                     it_business_name=%s, system_unit=%s, issued_company_owned=%s, employee_name=%s,
                     date_visited=%s, model_brand=%s, ram=%s, storage_capacity=%s,
                     serial_hdd_all=%s, description_specs=%s, date_issued=%s, unit_age=%s,
                     depreciation_date=%s, findings=%s, fa_number=%s, mac_address=%s,
-                    action_taken=%s, remarks=%s, tech_support=%s
+                    action_taken=%s, remarks=%s, tech_support=%s,
+                    monitor_fa=%s, keyboard_fa=%s, mouse_fa=%s, printer_fa=%s, router_fa=%s,
+                    webcam_fa=%s, ups_fa=%s, speedtest_profile=%s, processor_cpu=%s, os_version=%s, hdd_capacity=%s
                 """
                 def parse_date(d): return d if d else None
                 vals = (
@@ -174,11 +178,16 @@ def handle_inventory():
                     data.get('serial_hdd_all'), data.get('description_specs'), parse_date(data.get('date_issued')), data.get('unit_age'),
                     parse_date(data.get('depreciation_date')), data.get('findings'), data.get('fa_number'), data.get('mac_address'),
                     data.get('action_taken'), data.get('remarks'), data.get('tech_support'),
+                    data.get('monitor_fa'), data.get('keyboard_fa'), data.get('mouse_fa'), data.get('printer_fa'), data.get('router_fa'),
+                    data.get('webcam_fa'), data.get('ups_fa'), data.get('speedtest_profile'), data.get('processor_cpu'), data.get('os_version'), data.get('hdd_capacity'),
+                    
                     data.get('it_business_name'), data.get('system_unit'), data.get('issued_company_owned'), data.get('employee_name'),
                     parse_date(data.get('date_visited')), data.get('model_brand'), data.get('ram'), data.get('storage_capacity'),
                     data.get('serial_hdd_all'), data.get('description_specs'), parse_date(data.get('date_issued')), data.get('unit_age'),
                     parse_date(data.get('depreciation_date')), data.get('findings'), data.get('fa_number'), data.get('mac_address'),
-                    data.get('action_taken'), data.get('remarks'), data.get('tech_support')
+                    data.get('action_taken'), data.get('remarks'), data.get('tech_support'),
+                    data.get('monitor_fa'), data.get('keyboard_fa'), data.get('mouse_fa'), data.get('printer_fa'), data.get('router_fa'),
+                    data.get('webcam_fa'), data.get('ups_fa'), data.get('speedtest_profile'), data.get('processor_cpu'), data.get('os_version'), data.get('hdd_capacity')
                 )
                 cursor.execute(sql, vals)
             conn.commit()
@@ -248,8 +257,9 @@ def export_excel():
 
         headers = [
             "Business Name", "System Unit", "Issued/Company Owned", "Employee's Name",
-            "Date Visited", "IT Code", "Model / Brand", "RAM", "Storage Capacity",
-            "Serial (HDD&ALL UNIT)", "Description/ Specs", "Date Issued", "Unit Age",
+            "Date Visited", "IT Code", "Model / Brand", "Processor (CPU)", "RAM", "SSD Capacity", "HDD Capacity",
+            "Serial (HDD&ALL UNIT)", "Monitor FA", "Keyboard FA", "Mouse FA", "Printer FA", "Router FA",
+            "Webcam FA", "UPS FA", "Speedtest Profile", "OS Version", "Description/ Specs", "Date Issued", "Unit Age",
             "Depreciation date", "Findings", "FA #", "MAC Address", "Action Taken",
             "Remarks", "Tech Support"
         ]
@@ -270,9 +280,20 @@ def export_excel():
                 fmt_d(r.get('date_visited')),
                 r.get('it_code', ''),
                 r.get('model_brand', ''),
+                r.get('processor_cpu', ''),
                 r.get('ram', ''),
                 r.get('storage_capacity', ''),
+                r.get('hdd_capacity', ''),
                 r.get('serial_hdd_all', ''),
+                r.get('monitor_fa', ''),
+                r.get('keyboard_fa', ''),
+                r.get('mouse_fa', ''),
+                r.get('printer_fa', ''),
+                r.get('router_fa', ''),
+                r.get('webcam_fa', ''),
+                r.get('ups_fa', ''),
+                r.get('speedtest_profile', ''),
+                r.get('os_version', ''),
                 r.get('description_specs', ''),
                 fmt_d(r.get('date_issued')),
                 r.get('unit_age', ''),
