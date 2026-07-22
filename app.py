@@ -6,10 +6,8 @@ import openpyxl
 from io import BytesIO
 
 app = Flask(__name__)
-# Secret key used to encrypt user sessions
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "super_secret_it_inventory_key_2026")
 
-# --- DATABASE CONNECTION ---
 def get_db_connection():
     return pymysql.connect(
         host=os.environ.get("TIDB_HOST", "localhost"),
@@ -17,10 +15,9 @@ def get_db_connection():
         password=os.environ.get("TIDB_PASSWORD", ""),
         database=os.environ.get("TIDB_NAME", "test"),
         port=int(os.environ.get("TIDB_PORT", 4000)),
-        ssl={'ssl': {}}  # Required for TiDB Cloud Serverless SSL
+        ssl={'ssl': {}}
     )
 
-# Helper function to verify if any users exist in the system
 def check_admin_exists():
     conn = get_db_connection()
     try:
@@ -39,7 +36,6 @@ def check_admin_exists():
 def index():
     if not check_admin_exists():
         return redirect('/setup-admin')
-    # Automatically redirect unauthenticated visitors to login page
     if 'user_id' not in session:
         return redirect('/login')
     return render_template('index.html', user=session.get('user'))
@@ -145,7 +141,7 @@ def login_password():
     finally:
         conn.close()
 
-# --- INVENTORY API (21-FIELD CRUD) ---
+# --- INVENTORY API (CRUD: Create, Read, Update) ---
 @app.route('/api/inventory', methods=['GET', 'POST'])
 def handle_inventory():
     if 'user_id' not in session:
@@ -198,6 +194,27 @@ def handle_inventory():
     finally:
         conn.close()
 
+# --- DELETE INVENTORY ITEM ENDPOINT ---
+@app.route('/api/inventory/delete', methods=['POST'])
+def delete_inventory():
+    if 'user_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+        
+    it_code = request.json.get('it_code')
+    if not it_code:
+        return jsonify({"status": "error", "message": "IT Code required"}), 400
+
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("DELETE FROM it_inventory WHERE it_code = %s", (it_code,))
+        conn.commit()
+        return jsonify({"status": "success", "message": f"Record {it_code} deleted successfully!"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 400
+    finally:
+        conn.close()
+
 # --- EXPORT TO EXCEL ROUTE ---
 @app.route('/api/inventory/export', methods=['GET'])
 def export_excel():
@@ -205,8 +222,8 @@ def export_excel():
         return jsonify({"error": "Unauthorized"}), 401
 
     filter_type = request.args.get('filter_type', 'all')
-    filter_date = request.args.get('date', '')    # YYYY-MM-DD
-    filter_month = request.args.get('month', '')  # YYYY-MM
+    filter_date = request.args.get('date', '')
+    filter_month = request.args.get('month', '')
 
     conn = get_db_connection()
     try:
@@ -229,7 +246,6 @@ def export_excel():
         ws = wb.active
         ws.title = "IT Inventory"
 
-        # Headers formatted in exact requested sequence
         headers = [
             "Business Name", "System Unit", "Issued/Company Owned", "Employee's Name",
             "Date Visited", "IT Code", "Model / Brand", "RAM", "Storage Capacity",
@@ -239,7 +255,6 @@ def export_excel():
         ]
         ws.append(headers)
 
-        # Style header row (blue background, white bold text)
         for col_num in range(1, len(headers) + 1):
             cell = ws.cell(row=1, column=col_num)
             cell.font = openpyxl.styles.Font(bold=True, color="FFFFFF")
@@ -271,7 +286,6 @@ def export_excel():
             ]
             ws.append(row)
 
-        # Auto-adjust column width
         for col in ws.columns:
             max_len = max(len(str(cell.value or '')) for cell in col)
             col_letter = openpyxl.utils.get_column_letter(col[0].column)
