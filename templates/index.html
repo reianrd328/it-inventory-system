@@ -73,33 +73,35 @@
         {% endif %}
 
         <!-- EXPORT TO EXCEL CONTROL CARD -->
-        <div class="card export-card no-print">
-            <h3 style="margin-top: 0; color: #166534;">📊 Export Inventory to Excel</h3>
-            <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
-                <div class="form-group">
-                    <label>Export Filter Mode</label>
-                    <select id="export_mode" onchange="toggleExportInputs()">
-                        <option value="all">Export All Records</option>
-                        <option value="day">Export by Day (Date Visited)</option>
-                        <option value="month">Export by Month (Date Visited)</option>
-                    </select>
-                </div>
-
-                <div class="form-group" id="group_export_date" style="display: none;">
-                    <label>Select Date</label>
-                    <input type="date" id="export_date">
-                </div>
-
-                <div class="form-group" id="group_export_month" style="display: none;">
-                    <label>Select Month</label>
-                    <input type="month" id="export_month">
-                </div>
-
-                <button type="button" class="btn-excel" onclick="downloadExcel()">
-                    📥 Download Excel (.xlsx)
-                </button>
-            </div>
+       <!-- EXPORT TO EXCEL CONTROL CARD -->
+<div class="card export-card no-print">
+    <h3 style="margin-top: 0; color: #166534;">📊 Export Inventory to Excel</h3>
+    <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+        <div class="form-group">
+            <label>Export Filter Mode</label>
+            <select id="export_mode" onchange="toggleExportInputs()">
+                <option value="all">Export All Records</option>
+                <option value="day">Export by Day (Date Visited)</option>
+                <option value="month">Export by Month (Date Visited)</option>
+            </select>
         </div>
+
+        <div class="form-group" id="group_export_date" style="display: none;">
+            <label>Select Date</label>
+            <input type="date" id="export_date">
+        </div>
+
+        <!-- UPDATED WITH SAMPLE FORMAT HINT -->
+        <div class="form-group" id="group_export_month" style="display: none;">
+            <label>Select Month <small style="color: #059669; font-weight: normal;">(YYYY-MM e.g. 2026-07)</small></label>
+            <input type="month" id="export_month" placeholder="2026-07">
+        </div>
+
+        <button type="button" class="btn-excel" onclick="downloadExcel()">
+            📥 Download Excel (.xlsx)
+        </button>
+    </div>
+</div>
 
         <!-- Entry Form for 21 IT Inventory Fields -->
         <div class="card no-print">
