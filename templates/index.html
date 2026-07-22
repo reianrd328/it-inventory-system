@@ -22,30 +22,29 @@
         button:hover { background: #003d80; }
         .btn-excel { background: #10b981; margin-top: 0; }
         .btn-excel:hover { background: #059669; }
-        .btn-print { background: #28a745; margin-top: 0; }
-        .btn-print:hover { background: #1e7e34; }
         .btn-danger { background: #dc3545; padding: 8px 15px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 13px; color: white; }
         
         /* Table Action Buttons */
-        .btn-action-edit { background: #eab308; color: black; border: none; padding: 4px 8px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px; margin-top: 0; margin-right: 2px; }
-        .btn-action-delete { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px; margin-top: 0; margin-right: 2px; }
-        .btn-action-pm { background: #0284c7; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px; margin-top: 0; }
+        .btn-action-edit { background: #eab308; color: black; border: none; padding: 4px 8px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; margin-right: 2px; }
+        .btn-action-delete { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; margin-right: 2px; }
+        .btn-action-pm { background: #0284c7; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; margin-right: 2px; }
+        .btn-action-bv { background: #8b5cf6; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; }
         
         .table-responsive { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; font-size: 13px; }
         th, td { border: 1px solid #ddd; padding: 8px 10px; text-align: left; }
         th { background-color: #f1f4f8; font-weight: bold; }
         
-        /* --- PRINTABLE PREVENTIVE MAINTENANCE SHEET STYLES --- */
-        .pm-template { display: none; }
+        /* --- PRINT TEMPLATES HIDDEN ON SCREEN --- */
+        .pm-template, .bv-template { display: none; }
 
+        /* --- PRINT STYLES --- */
         @media print {
             .no-print { display: none !important; }
             body { background: white; margin: 0; padding: 0; color: #000; font-family: Arial, sans-serif; }
             
+            /* --- 1. RAQUEL PREVENTIVE MAINTENANCE FORM PRINT STYLES --- */
             .pm-template { display: block !important; width: 100%; }
-
-            /* SINGLE FORM LAYOUT (Half Page Height) */
             .pm-form-instance {
                 height: 48vh;
                 box-sizing: border-box;
@@ -54,7 +53,6 @@
                 flex-direction: column;
                 justify-content: space-between;
             }
-
             .cut-line {
                 text-align: center;
                 font-size: 8pt;
@@ -63,98 +61,37 @@
                 padding-top: 2px;
                 color: #555;
             }
+            table.pm-header-tbl, table.pm-meta-tbl { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+            table.pm-header-tbl td, table.pm-meta-tbl td { border: 1px solid #000; padding: 2px 4px; font-size: 7.5pt; }
+            .brand-cell { width: 25%; text-align: center; vertical-align: middle; padding: 2px; }
+            .brand-cell img { max-width: 100%; max-height: 38px; display: block; margin: 0 auto; }
+            .title-cell { font-weight: bold; font-size: 9.5pt; text-align: center; text-transform: uppercase; background: #f5f5f5; }
 
-            /* FORM HEADER TABLE */
-            table.pm-header-tbl {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 4px;
-            }
-            table.pm-header-tbl td {
-                border: 1px solid #000;
-                padding: 2px 4px;
-                font-size: 7.5pt;
-            }
-            .brand-cell {
-                width: 25%;
-                text-align: center;
-                vertical-align: middle;
-                padding: 2px;
-            }
-            .brand-cell img {
-                max-width: 100%;
-                max-height: 38px;
-                display: block;
-                margin: 0 auto;
-            }
-            .title-cell {
-                font-weight: bold;
-                font-size: 9.5pt;
-                text-align: center;
-                text-transform: uppercase;
-                background: #f5f5f5;
-            }
-
-            /* METADATA FIELDS TABLE */
-            table.pm-meta-tbl {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 4px;
-            }
-            table.pm-meta-tbl td {
-                border: 1px solid #000;
-                padding: 2px 4px;
-                font-size: 7.5pt;
-            }
-
-            /* CHECKLIST GRID CONTAINER */
-            .pm-grid {
-                display: flex;
-                gap: 5px;
-                margin-bottom: 4px;
-            }
+            .pm-grid { display: flex; gap: 5px; margin-bottom: 4px; }
             .pm-grid-left { width: 52%; }
             .pm-grid-right { width: 48%; display: flex; flex-direction: column; justify-content: space-between; }
-
-            /* CHECKLIST TABLES */
-            table.pm-chk-tbl {
-                width: 100%;
-                border-collapse: collapse;
-                font-size: 6.8pt;
-            }
-            table.pm-chk-tbl th, table.pm-chk-tbl td {
-                border: 1px solid #000;
-                padding: 1.5px 3px;
-            }
-            table.pm-chk-tbl th {
-                background: #e2e8f0;
-                font-weight: bold;
-                text-align: left;
-            }
+            table.pm-chk-tbl { width: 100%; border-collapse: collapse; font-size: 6.8pt; }
+            table.pm-chk-tbl th, table.pm-chk-tbl td { border: 1px solid #000; padding: 1.5px 3px; }
+            table.pm-chk-tbl th { background: #e2e8f0; font-weight: bold; text-align: left; }
             .chk-mark { text-align: center; width: 15px; font-weight: bold; }
 
-            /* REMARKS & SIGNATURE BOXES */
-            .remarks-box {
-                border: 1px solid #000;
-                padding: 3px;
-                font-size: 7pt;
-                height: 60px;
-            }
+            .remarks-box { border: 1px solid #000; padding: 3px; font-size: 7pt; height: 60px; }
             .remarks-title { font-weight: bold; color: #8b0000; margin-bottom: 2px; }
+            table.pm-sig-tbl { width: 100%; border-collapse: collapse; margin-top: 4px; }
+            table.pm-sig-tbl td { border: 1px solid #000; height: 32px; text-align: center; vertical-align: bottom; font-size: 6.5pt; padding-bottom: 2px; }
 
-            table.pm-sig-tbl {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 4px;
-            }
-            table.pm-sig-tbl td {
-                border: 1px solid #000;
-                height: 32px;
-                text-align: center;
-                vertical-align: bottom;
-                font-size: 6.5pt;
-                padding-bottom: 2px;
-            }
+            /* --- 2. BRANCH VISIT CHECKLIST PRINT STYLES --- */
+            .bv-template { display: block !important; width: 100%; }
+            .bv-grid-container { display: flex; justify-content: space-between; gap: 15px; }
+            .bv-column { width: 48%; font-size: 7pt; }
+            .bv-header { font-size: 10pt; font-weight: bold; text-align: center; border-bottom: 2px solid #000; padding-bottom: 2px; margin-bottom: 4px; }
+            .bv-section-title { font-weight: bold; font-size: 8pt; margin-top: 4px; margin-bottom: 2px; }
+            .bv-list { list-style: none; padding-left: 0; margin: 0 0 4px 0; }
+            .bv-list li { margin-bottom: 1px; }
+            .chk-box { color: red; font-weight: bold; margin-right: 3px; }
+            table.bv-spec-tbl { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 6.5pt; }
+            table.bv-spec-tbl th, table.bv-spec-tbl td { border: 1px solid #000; padding: 2px 3px; }
+            table.bv-spec-tbl th { background: #333; color: #fff; text-align: left; }
         }
     </style>
 </head>
@@ -297,7 +234,7 @@
             </div>
         </div>
 
-        <!-- PRINTABLE RAQUEL PAWNSHOP FORM TEMPLATE (2 COPIES WITH LOGO ON ONE PAGE) -->
+        <!-- PRINTABLE 1: RAQUEL PAWNSHOP FORM TEMPLATE (2 COPIES ON ONE PAGE) -->
         <div id="pmPrintSheet" class="pm-template">
             <!-- COPY 1: TOP HALF -->
             <div class="pm-form-instance">
@@ -305,7 +242,7 @@
                     <table class="pm-header-tbl">
                         <tr>
                             <td class="brand-cell" rowspan="2">
-                                <img src="/static/logo.png" alt="Raquel Pawnshop Logo" onerror="this.src='{{ url_for('static', filename='logo.png') }}'">
+                                <img src="/static/logo.png" alt="Raquel Logo" onerror="this.src='{{ url_for('static', filename='logo.png') }}'">
                             </td>
                             <td class="title-cell" rowspan="2">PREVENTIVE COMPUTER MAINTENANCE FORM</td>
                             <td><strong>Revision Date:</strong> August 24, 2020</td>
@@ -331,18 +268,11 @@
                     </table>
 
                     <div class="pm-grid">
-                        <!-- LEFT: Hardware Cleanup Checklist -->
                         <div class="pm-grid-left">
                             <table class="pm-chk-tbl">
                                 <thead>
-                                    <tr>
-                                        <th colspan="3" style="background:#e2e8f0; text-align:center;">Hardware Cleanup Checklist:</th>
-                                    </tr>
-                                    <tr>
-                                        <th>Component</th>
-                                        <th class="chk-mark">✓</th>
-                                        <th>To do</th>
-                                    </tr>
+                                    <tr><th colspan="3" style="background:#e2e8f0; text-align:center;">Hardware Cleanup Checklist:</th></tr>
+                                    <tr><th>Component</th><th class="chk-mark">✓</th><th>To do</th></tr>
                                 </thead>
                                 <tbody>
                                     <tr><td>Fan/ Fan intakes</td><td class="chk-mark">✓</td><td>Remove dust using compressed air</td></tr>
@@ -358,18 +288,11 @@
                             </table>
                         </div>
 
-                        <!-- RIGHT: Software Cleanup Checklist & Remarks -->
                         <div class="pm-grid-right">
                             <table class="pm-chk-tbl">
                                 <thead>
-                                    <tr>
-                                        <th colspan="3" style="background:#e2e8f0; text-align:center;">Software Cleanup Checklist:</th>
-                                    </tr>
-                                    <tr>
-                                        <th>Software</th>
-                                        <th class="chk-mark">✓</th>
-                                        <th>To do</th>
-                                    </tr>
+                                    <tr><th colspan="3" style="background:#e2e8f0; text-align:center;">Software Cleanup Checklist:</th></tr>
+                                    <tr><th>Software</th><th class="chk-mark">✓</th><th>To do</th></tr>
                                 </thead>
                                 <tbody>
                                     <tr><td>Security updates</td><td class="chk-mark">✓</td><td>Review and install</td></tr>
@@ -390,22 +313,14 @@
                     </div>
                 </div>
 
-                <!-- SIGNATURES -->
                 <table class="pm-sig-tbl">
                     <tr>
-                        <td style="width: 50%;">
-                            <strong class="pm_val_tech"></strong><br>
-                            Technical Support Name & Signature
-                        </td>
-                        <td style="width: 50%;">
-                            <strong class="pm_val_user"></strong><br>
-                            Branch/ Dept. Personnel Name & Signature
-                        </td>
+                        <td style="width: 50%;"><strong class="pm_val_tech"></strong><br>Technical Support Name & Signature</td>
+                        <td style="width: 50%;"><strong class="pm_val_user"></strong><br>Branch/ Dept. Personnel Name & Signature</td>
                     </tr>
                 </table>
             </div>
 
-            <!-- CUT LINE -->
             <div class="cut-line">✂ - - - - - - - - - - - - - - - - CUT HERE (FILE COPY / BRANCH COPY) - - - - - - - - - - - - - - - - ✂</div>
 
             <!-- COPY 2: BOTTOM HALF -->
@@ -414,7 +329,7 @@
                     <table class="pm-header-tbl">
                         <tr>
                             <td class="brand-cell" rowspan="2">
-                                <img src="/static/logo.png" alt="Raquel Pawnshop Logo" onerror="this.src='{{ url_for('static', filename='logo.png') }}'">
+                                <img src="/static/logo.png" alt="Raquel Logo" onerror="this.src='{{ url_for('static', filename='logo.png') }}'">
                             </td>
                             <td class="title-cell" rowspan="2">PREVENTIVE COMPUTER MAINTENANCE FORM</td>
                             <td><strong>Revision Date:</strong> August 24, 2020</td>
@@ -443,14 +358,8 @@
                         <div class="pm-grid-left">
                             <table class="pm-chk-tbl">
                                 <thead>
-                                    <tr>
-                                        <th colspan="3" style="background:#e2e8f0; text-align:center;">Hardware Cleanup Checklist:</th>
-                                    </tr>
-                                    <tr>
-                                        <th>Component</th>
-                                        <th class="chk-mark">✓</th>
-                                        <th>To do</th>
-                                    </tr>
+                                    <tr><th colspan="3" style="background:#e2e8f0; text-align:center;">Hardware Cleanup Checklist:</th></tr>
+                                    <tr><th>Component</th><th class="chk-mark">✓</th><th>To do</th></tr>
                                 </thead>
                                 <tbody>
                                     <tr><td>Fan/ Fan intakes</td><td class="chk-mark">✓</td><td>Remove dust using compressed air</td></tr>
@@ -469,14 +378,8 @@
                         <div class="pm-grid-right">
                             <table class="pm-chk-tbl">
                                 <thead>
-                                    <tr>
-                                        <th colspan="3" style="background:#e2e8f0; text-align:center;">Software Cleanup Checklist:</th>
-                                    </tr>
-                                    <tr>
-                                        <th>Software</th>
-                                        <th class="chk-mark">✓</th>
-                                        <th>To do</th>
-                                    </tr>
+                                    <tr><th colspan="3" style="background:#e2e8f0; text-align:center;">Software Cleanup Checklist:</th></tr>
+                                    <tr><th>Software</th><th class="chk-mark">✓</th><th>To do</th></tr>
                                 </thead>
                                 <tbody>
                                     <tr><td>Security updates</td><td class="chk-mark">✓</td><td>Review and install</td></tr>
@@ -499,16 +402,177 @@
 
                 <table class="pm-sig-tbl">
                     <tr>
-                        <td style="width: 50%;">
-                            <strong class="pm_val_tech"></strong><br>
-                            Technical Support Name & Signature
-                        </td>
-                        <td style="width: 50%;">
-                            <strong class="pm_val_user"></strong><br>
-                            Branch/ Dept. Personnel Name & Signature
-                        </td>
+                        <td style="width: 50%;"><strong class="pm_val_tech"></strong><br>Technical Support Name & Signature</td>
+                        <td style="width: 50%;"><strong class="pm_val_user"></strong><br>Branch/ Dept. Personnel Name & Signature</td>
                     </tr>
                 </table>
+            </div>
+        </div>
+
+        <!-- PRINTABLE 2: BRANCH VISIT CHECKLIST TEMPLATE (2-COLUMN SIDE-BY-SIDE) -->
+        <div id="bvPrintSheet" class="bv-template">
+            <div class="bv-grid-container">
+                <!-- COPY 1: LEFT COLUMN -->
+                <div class="bv-column">
+                    <div class="bv-header">BRANCH VISIT <span class="bv_val_branch"></span></div>
+                    
+                    <div class="bv-section-title">PART 1</div>
+                    <ul class="bv-list">
+                        <li><span class="chk-box">◯</span> Check PC Application</li>
+                        <li><span class="chk-box">◯</span> Removed Unnecessary Application - Capture</li>
+                        <li><span class="chk-box">◯</span> On Run <em>"Systeminfo"</em></li>
+                        <li><span class="chk-box">◯</span> Original Install Date: ____________________</li>
+                        <li><span class="chk-box">◯</span> Check Google Drive Backup</li>
+                        <li><span class="chk-box">◯</span> Check PC backup Drive D:</li>
+                        <li><span class="chk-box">◯</span> Check Browser Bookmarks/History-Capture/Prohibited site</li>
+                        <li><span class="chk-box">◯</span> Check PC Files</li>
+                        <li><span class="chk-box">◯</span> Check OS License (Activate if not activated)</li>
+                    </ul>
+
+                    <div class="bv-section-title">PART 2 (Interview)</div>
+                    <ul class="bv-list">
+                        <li><span class="chk-box">◯</span> Any Concerns with Computer Hardware, Usage?</li>
+                        <li><span class="chk-box">◯</span> Feedback on Internet Speed</li>
+                        <li><span class="chk-box">◯</span> Feedback on System Related Efficiency</li>
+                        <li><span class="chk-box">◯</span> Suggestion if Any to improve IT Services Better</li>
+                    </ul>
+
+                    <div class="bv-section-title">PART 4</div>
+                    <ul class="bv-list">
+                        <li><span class="chk-box">◯</span> List all concerns for proper reporting and action</li>
+                        <li><span class="chk-box">◯</span> Update records in IT Google Drive</li>
+                    </ul>
+
+                    <table class="bv-spec-tbl">
+                        <thead>
+                            <tr><th>FA # and HDD/SSD Serial #</th><th>Computer Specification</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Chassis Hardware Serial Number:</strong><br><span class="bv_val_serial"></span></td>
+                                <td><strong>Processor (CPU):</strong><br><span class="bv_val_model"></span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Monitor FA Number:</strong><br><strong>Keyboard FA Number:</strong><br><strong>Mouse FA Number:</strong></td>
+                                <td><strong>Memory Allocation (RAM):</strong> <span class="bv_val_ram"></span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Printer FA Number:</strong><br><strong>Router FA Number:</strong></td>
+                                <td><strong>Solid State Drive (SSD):</strong> <span class="bv_val_storage"></span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Webcam FA Number:</strong><br><strong>UPS FA Number:</strong></td>
+                                <td><strong>Hard Disk Drive (HDD):</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Network Speedtest Profile:</strong><br><strong>Primary NIC MAC Address:</strong> <span class="bv_val_mac"></span></td>
+                                <td><strong>OS Environment & Version:</strong></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <strong style="color: #16a34a;">Auxiliary App:</strong><br>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; font-size: 6.5pt; margin-top: 2px;">
+                                        <span>☐ BPI Banko</span><span>☐ CTI Loading</span>
+                                        <span>☐ Sendah – Paymaya</span><span>☐ Peraquel</span>
+                                        <span>☐ Bayad Center</span><span>☐ Biyahe ko</span>
+                                        <span>☐ Digipadala</span><span>☐ All installed</span>
+                                        <span>☐ Western Union</span><span>☐ Load Central</span>
+                                        <span>☐ Transfast</span><span></span>
+                                        <span>☐ Gcash- ECPAY</span><span>☐ Sendah – Smart Padala</span>
+                                        <span>☐ Cebuana</span><span></span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="height: 35px; vertical-align: top;">
+                                    <strong style="color: #dc2626;">Concerns / Remarks:</strong><br>
+                                    <span class="bv_val_remarks"></span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- COPY 2: RIGHT COLUMN (DUPLICATE) -->
+                <div class="bv-column">
+                    <div class="bv-header">BRANCH VISIT <span class="bv_val_branch"></span></div>
+                    
+                    <div class="bv-section-title">PART 1</div>
+                    <ul class="bv-list">
+                        <li><span class="chk-box">◯</span> Check PC Application</li>
+                        <li><span class="chk-box">◯</span> Removed Unnecessary Application - Capture</li>
+                        <li><span class="chk-box">◯</span> On Run <em>"Systeminfo"</em></li>
+                        <li><span class="chk-box">◯</span> Original Install Date: ____________________</li>
+                        <li><span class="chk-box">◯</span> Check Google Drive Backup</li>
+                        <li><span class="chk-box">◯</span> Check PC backup Drive D:</li>
+                        <li><span class="chk-box">◯</span> Check Browser Bookmarks/History-Capture/Prohibited site</li>
+                        <li><span class="chk-box">◯</span> Check PC Files</li>
+                        <li><span class="chk-box">◯</span> Check OS License (Activate if not activated)</li>
+                    </ul>
+
+                    <div class="bv-section-title">PART 2 (Interview)</div>
+                    <ul class="bv-list">
+                        <li><span class="chk-box">◯</span> Any Concerns with Computer Hardware, Usage?</li>
+                        <li><span class="chk-box">◯</span> Feedback on Internet Speed</li>
+                        <li><span class="chk-box">◯</span> Feedback on System Related Efficiency</li>
+                        <li><span class="chk-box">◯</span> Suggestion if Any to improve IT Services Better</li>
+                    </ul>
+
+                    <div class="bv-section-title">PART 4</div>
+                    <ul class="bv-list">
+                        <li><span class="chk-box">◯</span> List all concerns for proper reporting and action</li>
+                        <li><span class="chk-box">◯</span> Update records in IT Google Drive</li>
+                    </ul>
+
+                    <table class="bv-spec-tbl">
+                        <thead>
+                            <tr><th>FA # and HDD/SSD Serial #</th><th>Computer Specification</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Chassis Hardware Serial Number:</strong><br><span class="bv_val_serial"></span></td>
+                                <td><strong>Processor (CPU):</strong><br><span class="bv_val_model"></span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Monitor FA Number:</strong><br><strong>Keyboard FA Number:</strong><br><strong>Mouse FA Number:</strong></td>
+                                <td><strong>Memory Allocation (RAM):</strong> <span class="bv_val_ram"></span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Printer FA Number:</strong><br><strong>Router FA Number:</strong></td>
+                                <td><strong>Solid State Drive (SSD):</strong> <span class="bv_val_storage"></span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Webcam FA Number:</strong><br><strong>UPS FA Number:</strong></td>
+                                <td><strong>Hard Disk Drive (HDD):</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Network Speedtest Profile:</strong><br><strong>Primary NIC MAC Address:</strong> <span class="bv_val_mac"></span></td>
+                                <td><strong>OS Environment & Version:</strong></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <strong style="color: #16a34a;">Auxiliary App:</strong><br>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; font-size: 6.5pt; margin-top: 2px;">
+                                        <span>☐ BPI Banko</span><span>☐ CTI Loading</span>
+                                        <span>☐ Sendah – Paymaya</span><span>☐ Peraquel</span>
+                                        <span>☐ Bayad Center</span><span>☐ Biyahe ko</span>
+                                        <span>☐ Digipadala</span><span>☐ All installed</span>
+                                        <span>☐ Western Union</span><span>☐ Load Central</span>
+                                        <span>☐ Transfast</span><span></span>
+                                        <span>☐ Gcash- ECPAY</span><span>☐ Sendah – Smart Padala</span>
+                                        <span>☐ Cebuana</span><span></span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="height: 35px; vertical-align: top;">
+                                    <strong style="color: #dc2626;">Concerns / Remarks:</strong><br>
+                                    <span class="bv_val_remarks"></span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -672,12 +736,11 @@
             if (res.ok) loadInventory();
         }
 
-        // --- PRINT EXACT RAQUEL FORM HANDLER ---
+        // --- PRINT 1: RAQUEL PM FORM HANDLER ---
         function printPMReport(itCode) {
             const item = rawInventoryData.find(i => i.it_code === itCode);
             if (!item) return;
 
-            // Populate both top & bottom duplicate forms
             document.querySelectorAll('.pm_val_branch').forEach(el => el.innerText = item.it_business_name || '');
             document.querySelectorAll('.pm_val_date').forEach(el => el.innerText = item.date_visited || '');
             document.querySelectorAll('.pm_val_comp').forEach(el => el.innerText = `${item.system_unit || ''} (${item.it_code})`);
@@ -689,6 +752,22 @@
             
             document.querySelectorAll('.pm_val_tech').forEach(el => el.innerText = item.tech_support || '');
             document.querySelectorAll('.pm_val_user').forEach(el => el.innerText = item.employee_name || '');
+
+            window.print();
+        }
+
+        // --- PRINT 2: BRANCH VISIT CHECKLIST HANDLER ---
+        function printBranchVisitReport(itCode) {
+            const item = rawInventoryData.find(i => i.it_code === itCode);
+            if (!item) return;
+
+            document.querySelectorAll('.bv_val_branch').forEach(el => el.innerText = item.it_business_name ? `________________ (${item.it_business_name})` : '________________');
+            document.querySelectorAll('.bv_val_serial').forEach(el => el.innerText = item.serial_hdd_all || 'N/A');
+            document.querySelectorAll('.bv_val_model').forEach(el => el.innerText = item.model_brand || 'N/A');
+            document.querySelectorAll('.bv_val_ram').forEach(el => el.innerText = item.ram || 'N/A');
+            document.querySelectorAll('.bv_val_storage').forEach(el => el.innerText = item.storage_capacity || 'N/A');
+            document.querySelectorAll('.bv_val_mac').forEach(el => el.innerText = item.mac_address || 'N/A');
+            document.querySelectorAll('.bv_val_remarks').forEach(el => el.innerText = item.remarks || item.findings || '');
 
             window.print();
         }
@@ -776,6 +855,7 @@
                         <button class="btn-action-edit" onclick="editRecord('${item.it_code}')">✏️ Edit</button>
                         <button class="btn-action-delete" onclick="deleteRecord('${item.it_code}')">🗑️ Delete</button>
                         <button class="btn-action-pm" onclick="printPMReport('${item.it_code}')">📄 PM Form</button>
+                        <button class="btn-action-bv" onclick="printBranchVisitReport('${item.it_code}')">📄 Branch Visit</button>
                     </td>
                 </tr>`;
                 tbody.innerHTML += row;
