@@ -12,6 +12,7 @@
         .admin-card { border-left: 5px solid #0284c7; background: #f0f9ff; }
         .export-card { border-left: 5px solid #10b981; background: #f0fdf4; }
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+        .form-section-header { grid-column: 1 / -1; font-weight: bold; font-size: 14px; color: #0284c7; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; margin-top: 10px; }
         .form-group { display: flex; flex-direction: column; }
         .form-group.full-width { grid-column: 1 / -1; }
         label { font-weight: 600; margin-bottom: 5px; font-size: 13px; color: #444; }
@@ -43,7 +44,7 @@
             .no-print { display: none !important; }
             body { background: white; margin: 0; padding: 0; color: #000; font-family: Arial, sans-serif; }
             
-            /* --- 1. RAQUEL PREVENTIVE MAINTENANCE FORM PRINT STYLES --- */
+            /* 1. RAQUEL PREVENTIVE MAINTENANCE FORM PRINT STYLES */
             .pm-template { display: block !important; width: 100%; }
             .pm-form-instance {
                 height: 48vh;
@@ -53,14 +54,7 @@
                 flex-direction: column;
                 justify-content: space-between;
             }
-            .cut-line {
-                text-align: center;
-                font-size: 8pt;
-                border-top: 1px dashed #666;
-                margin: 4px 0;
-                padding-top: 2px;
-                color: #555;
-            }
+            .cut-line { text-align: center; font-size: 8pt; border-top: 1px dashed #666; margin: 4px 0; padding-top: 2px; color: #555; }
             table.pm-header-tbl, table.pm-meta-tbl { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
             table.pm-header-tbl td, table.pm-meta-tbl td { border: 1px solid #000; padding: 2px 4px; font-size: 7.5pt; }
             .brand-cell { width: 25%; text-align: center; vertical-align: middle; padding: 2px; }
@@ -80,7 +74,7 @@
             table.pm-sig-tbl { width: 100%; border-collapse: collapse; margin-top: 4px; }
             table.pm-sig-tbl td { border: 1px solid #000; height: 32px; text-align: center; vertical-align: bottom; font-size: 6.5pt; padding-bottom: 2px; }
 
-            /* --- 2. BRANCH VISIT CHECKLIST PRINT STYLES --- */
+            /* 2. BRANCH VISIT CHECKLIST PRINT STYLES */
             .bv-template { display: block !important; width: 100%; }
             .bv-grid-container { display: flex; justify-content: space-between; gap: 15px; }
             .bv-column { width: 48%; font-size: 7pt; }
@@ -157,11 +151,13 @@
             </div>
         </div>
 
-        <!-- Entry Form for 21 IT Inventory Fields -->
+        <!-- Entry Form for IT Inventory & Peripherals -->
         <div class="card no-print" id="formCard">
             <h3 id="formTitle">Record Unit / Maintenance Report</h3>
             <form id="inventoryForm">
                 <div class="form-grid">
+                    <!-- SECTION 1: BASIC ASSET INFO -->
+                    <div class="form-section-header">📌 Basic Asset Information</div>
                     <div class="form-group"><label>IT Business Name / Branch</label><input type="text" id="it_business_name"></div>
                     <div class="form-group"><label>System Unit / Computer Name</label><input type="text" id="system_unit" placeholder="Ex: Desktop / Laptop"></div>
                     <div class="form-group">
@@ -175,10 +171,6 @@
                     <div class="form-group"><label>Employee's Name</label><input type="text" id="employee_name"></div>
                     <div class="form-group"><label>Date Visited</label><input type="date" id="date_visited" onchange="calculateDates()"></div>
                     <div class="form-group"><label>IT Code *</label><input type="text" id="it_code" required placeholder="Unique Asset Tag"></div>
-                    <div class="form-group"><label>Model / Brand</label><input type="text" id="model_brand"></div>
-                    <div class="form-group"><label>RAM</label><input type="text" id="ram" placeholder="Ex: 16GB DDR4"></div>
-                    <div class="form-group"><label>Storage Capacity</label><input type="text" id="storage_capacity" placeholder="Ex: 512GB NVMe SSD"></div>
-                    <div class="form-group"><label>Serial (HDD & All Unit)</label><input type="text" id="serial_hdd_all"></div>
                     <div class="form-group"><label>Date Issued</label><input type="date" id="date_issued" onchange="calculateDates()"></div>
                     
                     <div class="form-group">
@@ -190,10 +182,32 @@
                         <input type="date" id="depreciation_date" class="readonly-input" readonly>
                     </div>
 
-                    <div class="form-group"><label>FA # (Fixed Asset No.)</label><input type="text" id="fa_number"></div>
-                    <div class="form-group"><label>MAC Address</label><input type="text" id="mac_address" placeholder="00-1A-2B-3C-4D-5E"></div>
+                    <!-- SECTION 2: HARDWARE SPECIFICATIONS -->
+                    <div class="form-section-header">💻 Computer Specifications</div>
+                    <div class="form-group"><label>Processor (CPU)</label><input type="text" id="processor_cpu" placeholder="Ex: Intel Core i5-11400"></div>
+                    <div class="form-group"><label>Model / Brand</label><input type="text" id="model_brand"></div>
+                    <div class="form-group"><label>Memory Allocation (RAM)</label><input type="text" id="ram" placeholder="Ex: 16GB DDR4"></div>
+                    <div class="form-group"><label>Solid State Drive (SSD)</label><input type="text" id="storage_capacity" placeholder="Ex: 256GB SSD"></div>
+                    <div class="form-group"><label>Hard Disk Drive (HDD)</label><input type="text" id="hdd_capacity" placeholder="Ex: 1TB HDD"></div>
+                    <div class="form-group"><label>Chassis / Unit Serial Number</label><input type="text" id="serial_hdd_all"></div>
+                    <div class="form-group"><label>OS Environment & Version</label><input type="text" id="os_version" placeholder="Ex: Windows 11 Pro"></div>
+
+                    <!-- SECTION 3: PERIPHERALS & NETWORK FA NUMBERS -->
+                    <div class="form-section-header">🔌 Peripherals & Network FA Numbers</div>
+                    <div class="form-group"><label>System Unit FA #</label><input type="text" id="fa_number"></div>
+                    <div class="form-group"><label>Monitor FA #</label><input type="text" id="monitor_fa"></div>
+                    <div class="form-group"><label>Keyboard FA #</label><input type="text" id="keyboard_fa"></div>
+                    <div class="form-group"><label>Mouse FA #</label><input type="text" id="mouse_fa"></div>
+                    <div class="form-group"><label>Printer FA #</label><input type="text" id="printer_fa"></div>
+                    <div class="form-group"><label>Router FA #</label><input type="text" id="router_fa"></div>
+                    <div class="form-group"><label>Webcam FA #</label><input type="text" id="webcam_fa"></div>
+                    <div class="form-group"><label>UPS FA #</label><input type="text" id="ups_fa"></div>
+                    <div class="form-group"><label>Network Speedtest Profile</label><input type="text" id="speedtest_profile" placeholder="Ex: 50 Mbps DL / 50 Mbps UL"></div>
+                    <div class="form-group"><label>Primary NIC MAC Address</label><input type="text" id="mac_address" placeholder="00-1A-2B-3C-4D-5E"></div>
                     <div class="form-group"><label>Tech Support</label><input type="text" id="tech_support" value="{{ user.full_name or user.username }}"></div>
                     
+                    <!-- SECTION 4: DIAGNOSTICS & REMARKS -->
+                    <div class="form-section-header">📝 Diagnostic Remarks & Findings</div>
                     <div class="form-group full-width"><label>Description / Specs</label><textarea id="description_specs" rows="2"></textarea></div>
                     <div class="form-group full-width"><label>Findings</label><textarea id="findings" rows="2"></textarea></div>
                     <div class="form-group full-width"><label>Action Taken</label><textarea id="action_taken" rows="2"></textarea></div>
@@ -234,7 +248,7 @@
             </div>
         </div>
 
-        <!-- PRINTABLE 1: RAQUEL PAWNSHOP FORM TEMPLATE (2 COPIES ON ONE PAGE) -->
+        <!-- PRINTABLE 1: RAQUEL PAWNSHOP FORM TEMPLATE -->
         <div id="pmPrintSheet" class="pm-template">
             <!-- COPY 1: TOP HALF -->
             <div class="pm-form-instance">
@@ -409,7 +423,7 @@
             </div>
         </div>
 
-        <!-- PRINTABLE 2: BRANCH VISIT CHECKLIST TEMPLATE (2-COLUMN SIDE-BY-SIDE) -->
+        <!-- PRINTABLE 2: BRANCH VISIT CHECKLIST TEMPLATE (DYNAMICALLY LOADED SPECS) -->
         <div id="bvPrintSheet" class="bv-template">
             <div class="bv-grid-container">
                 <!-- COPY 1: LEFT COLUMN -->
@@ -450,23 +464,36 @@
                         <tbody>
                             <tr>
                                 <td><strong>Chassis Hardware Serial Number:</strong><br><span class="bv_val_serial"></span></td>
-                                <td><strong>Processor (CPU):</strong><br><span class="bv_val_model"></span></td>
+                                <td><strong>Processor (CPU):</strong><br><span class="bv_val_cpu"></span></td>
                             </tr>
                             <tr>
-                                <td><strong>Monitor FA Number:</strong><br><strong>Keyboard FA Number:</strong><br><strong>Mouse FA Number:</strong></td>
+                                <td>
+                                    <strong>Monitor FA Number:</strong> <span class="bv_val_mon_fa"></span><br>
+                                    <strong>Keyboard FA Number:</strong> <span class="bv_val_kb_fa"></span><br>
+                                    <strong>Mouse FA Number:</strong> <span class="bv_val_mouse_fa"></span>
+                                </td>
                                 <td><strong>Memory Allocation (RAM):</strong> <span class="bv_val_ram"></span></td>
                             </tr>
                             <tr>
-                                <td><strong>Printer FA Number:</strong><br><strong>Router FA Number:</strong></td>
+                                <td>
+                                    <strong>Printer FA Number:</strong> <span class="bv_val_printer_fa"></span><br>
+                                    <strong>Router FA Number:</strong> <span class="bv_val_router_fa"></span>
+                                </td>
                                 <td><strong>Solid State Drive (SSD):</strong> <span class="bv_val_storage"></span></td>
                             </tr>
                             <tr>
-                                <td><strong>Webcam FA Number:</strong><br><strong>UPS FA Number:</strong></td>
-                                <td><strong>Hard Disk Drive (HDD):</strong></td>
+                                <td>
+                                    <strong>Webcam FA Number:</strong> <span class="bv_val_webcam_fa"></span><br>
+                                    <strong>UPS FA Number:</strong> <span class="bv_val_ups_fa"></span>
+                                </td>
+                                <td><strong>Hard Disk Drive (HDD):</strong> <span class="bv_val_hdd"></span></td>
                             </tr>
                             <tr>
-                                <td><strong>Network Speedtest Profile:</strong><br><strong>Primary NIC MAC Address:</strong> <span class="bv_val_mac"></span></td>
-                                <td><strong>OS Environment & Version:</strong></td>
+                                <td>
+                                    <strong>Network Speedtest Profile:</strong> <span class="bv_val_speedtest"></span><br>
+                                    <strong>Primary NIC MAC Address:</strong> <span class="bv_val_mac"></span>
+                                </td>
+                                <td><strong>OS Environment & Version:</strong> <span class="bv_val_os"></span></td>
                             </tr>
                             <tr>
                                 <td colspan="2">
@@ -531,23 +558,36 @@
                         <tbody>
                             <tr>
                                 <td><strong>Chassis Hardware Serial Number:</strong><br><span class="bv_val_serial"></span></td>
-                                <td><strong>Processor (CPU):</strong><br><span class="bv_val_model"></span></td>
+                                <td><strong>Processor (CPU):</strong><br><span class="bv_val_cpu"></span></td>
                             </tr>
                             <tr>
-                                <td><strong>Monitor FA Number:</strong><br><strong>Keyboard FA Number:</strong><br><strong>Mouse FA Number:</strong></td>
+                                <td>
+                                    <strong>Monitor FA Number:</strong> <span class="bv_val_mon_fa"></span><br>
+                                    <strong>Keyboard FA Number:</strong> <span class="bv_val_kb_fa"></span><br>
+                                    <strong>Mouse FA Number:</strong> <span class="bv_val_mouse_fa"></span>
+                                </td>
                                 <td><strong>Memory Allocation (RAM):</strong> <span class="bv_val_ram"></span></td>
                             </tr>
                             <tr>
-                                <td><strong>Printer FA Number:</strong><br><strong>Router FA Number:</strong></td>
+                                <td>
+                                    <strong>Printer FA Number:</strong> <span class="bv_val_printer_fa"></span><br>
+                                    <strong>Router FA Number:</strong> <span class="bv_val_router_fa"></span>
+                                </td>
                                 <td><strong>Solid State Drive (SSD):</strong> <span class="bv_val_storage"></span></td>
                             </tr>
                             <tr>
-                                <td><strong>Webcam FA Number:</strong><br><strong>UPS FA Number:</strong></td>
-                                <td><strong>Hard Disk Drive (HDD):</strong></td>
+                                <td>
+                                    <strong>Webcam FA Number:</strong> <span class="bv_val_webcam_fa"></span><br>
+                                    <strong>UPS FA Number:</strong> <span class="bv_val_ups_fa"></span>
+                                </td>
+                                <td><strong>Hard Disk Drive (HDD):</strong> <span class="bv_val_hdd"></span></td>
                             </tr>
                             <tr>
-                                <td><strong>Network Speedtest Profile:</strong><br><strong>Primary NIC MAC Address:</strong> <span class="bv_val_mac"></span></td>
-                                <td><strong>OS Environment & Version:</strong></td>
+                                <td>
+                                    <strong>Network Speedtest Profile:</strong> <span class="bv_val_speedtest"></span><br>
+                                    <strong>Primary NIC MAC Address:</strong> <span class="bv_val_mac"></span>
+                                </td>
+                                <td><strong>OS Environment & Version:</strong> <span class="bv_val_os"></span></td>
                             </tr>
                             <tr>
                                 <td colspan="2">
@@ -703,6 +743,19 @@
             document.getElementById('action_taken').value = item.action_taken || '';
             document.getElementById('remarks').value = item.remarks || '';
 
+            // New Specs & FA Numbers
+            document.getElementById('processor_cpu').value = item.processor_cpu || '';
+            document.getElementById('hdd_capacity').value = item.hdd_capacity || '';
+            document.getElementById('os_version').value = item.os_version || '';
+            document.getElementById('monitor_fa').value = item.monitor_fa || '';
+            document.getElementById('keyboard_fa').value = item.keyboard_fa || '';
+            document.getElementById('mouse_fa').value = item.mouse_fa || '';
+            document.getElementById('printer_fa').value = item.printer_fa || '';
+            document.getElementById('router_fa').value = item.router_fa || '';
+            document.getElementById('webcam_fa').value = item.webcam_fa || '';
+            document.getElementById('ups_fa').value = item.ups_fa || '';
+            document.getElementById('speedtest_profile').value = item.speedtest_profile || '';
+
             calculateDates();
 
             document.getElementById('formTitle').innerText = `✏️ Edit Record (${item.it_code})`;
@@ -763,10 +816,22 @@
 
             document.querySelectorAll('.bv_val_branch').forEach(el => el.innerText = item.it_business_name ? `________________ (${item.it_business_name})` : '________________');
             document.querySelectorAll('.bv_val_serial').forEach(el => el.innerText = item.serial_hdd_all || 'N/A');
-            document.querySelectorAll('.bv_val_model').forEach(el => el.innerText = item.model_brand || 'N/A');
+            document.querySelectorAll('.bv_val_cpu').forEach(el => el.innerText = item.processor_cpu || item.model_brand || 'N/A');
             document.querySelectorAll('.bv_val_ram').forEach(el => el.innerText = item.ram || 'N/A');
             document.querySelectorAll('.bv_val_storage').forEach(el => el.innerText = item.storage_capacity || 'N/A');
+            document.querySelectorAll('.bv_val_hdd').forEach(el => el.innerText = item.hdd_capacity || 'N/A');
+            document.querySelectorAll('.bv_val_os').forEach(el => el.innerText = item.os_version || 'N/A');
+            
+            document.querySelectorAll('.bv_val_mon_fa').forEach(el => el.innerText = item.monitor_fa || 'N/A');
+            document.querySelectorAll('.bv_val_kb_fa').forEach(el => el.innerText = item.keyboard_fa || 'N/A');
+            document.querySelectorAll('.bv_val_mouse_fa').forEach(el => el.innerText = item.mouse_fa || 'N/A');
+            document.querySelectorAll('.bv_val_printer_fa').forEach(el => el.innerText = item.printer_fa || 'N/A');
+            document.querySelectorAll('.bv_val_router_fa').forEach(el => el.innerText = item.router_fa || 'N/A');
+            document.querySelectorAll('.bv_val_webcam_fa').forEach(el => el.innerText = item.webcam_fa || 'N/A');
+            document.querySelectorAll('.bv_val_ups_fa').forEach(el => el.innerText = item.ups_fa || 'N/A');
+            document.querySelectorAll('.bv_val_speedtest').forEach(el => el.innerText = item.speedtest_profile || 'N/A');
             document.querySelectorAll('.bv_val_mac').forEach(el => el.innerText = item.mac_address || 'N/A');
+            
             document.querySelectorAll('.bv_val_remarks').forEach(el => el.innerText = item.remarks || item.findings || '');
 
             window.print();
@@ -816,7 +881,20 @@
                 tech_support: document.getElementById('tech_support').value,
                 findings: document.getElementById('findings').value,
                 action_taken: document.getElementById('action_taken').value,
-                remarks: document.getElementById('remarks').value
+                remarks: document.getElementById('remarks').value,
+
+                // New Peripheral FA & Computer Specs
+                processor_cpu: document.getElementById('processor_cpu').value,
+                hdd_capacity: document.getElementById('hdd_capacity').value,
+                os_version: document.getElementById('os_version').value,
+                monitor_fa: document.getElementById('monitor_fa').value,
+                keyboard_fa: document.getElementById('keyboard_fa').value,
+                mouse_fa: document.getElementById('mouse_fa').value,
+                printer_fa: document.getElementById('printer_fa').value,
+                router_fa: document.getElementById('router_fa').value,
+                webcam_fa: document.getElementById('webcam_fa').value,
+                ups_fa: document.getElementById('ups_fa').value,
+                speedtest_profile: document.getElementById('speedtest_profile').value
             };
 
             const res = await fetch('/api/inventory', {
