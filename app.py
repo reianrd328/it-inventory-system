@@ -6,8 +6,10 @@ import openpyxl
 from io import BytesIO
 
 app = Flask(__name__)
+# Secret key used to encrypt user sessions
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "super_secret_it_inventory_key_2026")
 
+# --- DATABASE CONNECTION ---
 def get_db_connection():
     return pymysql.connect(
         host=os.environ.get("TIDB_HOST", "localhost"),
@@ -15,9 +17,10 @@ def get_db_connection():
         password=os.environ.get("TIDB_PASSWORD", ""),
         database=os.environ.get("TIDB_NAME", "test"),
         port=int(os.environ.get("TIDB_PORT", 4000)),
-        ssl={'ssl': {}}
+        ssl={'ssl': {}}  # Required for TiDB Cloud Serverless SSL
     )
 
+# Helper function to check if any admin accounts exist
 def check_admin_exists():
     conn = get_db_connection()
     try:
@@ -36,6 +39,7 @@ def check_admin_exists():
 def index():
     if not check_admin_exists():
         return redirect('/setup-admin')
+    # Automatically redirect unauthenticated visitors to login page
     if 'user_id' not in session:
         return redirect('/login')
     return render_template('index.html', user=session.get('user'))
@@ -88,7 +92,7 @@ def setup_super_admin():
     finally:
         conn.close()
 
-# --- CREATE USER ROUTE ---
+# --- CREATE USER ROUTE (Super Admin Only) ---
 @app.route('/api/users/create', methods=['POST'])
 def create_user_dashboard():
     if 'user_id' not in session or session.get('user', {}).get('role') != 'Super Admin':
@@ -141,7 +145,7 @@ def login_password():
     finally:
         conn.close()
 
-# --- INVENTORY API WITH NEW PERIPHERAL & SPEC FIELDS ---
+# --- INVENTORY API (FETCH, CREATE, AND UPDATE) ---
 @app.route('/api/inventory', methods=['GET', 'POST'])
 def handle_inventory():
     if 'user_id' not in session:
@@ -224,7 +228,7 @@ def delete_inventory():
     finally:
         conn.close()
 
-# --- EXPORT TO EXCEL ROUTE ---
+# --- EXPORT TO EXCEL ROUTE (STRICT 20 COLUMNS) ---
 @app.route('/api/inventory/export', methods=['GET'])
 def export_excel():
     if 'user_id' not in session:
@@ -255,21 +259,38 @@ def export_excel():
         ws = wb.active
         ws.title = "IT Inventory"
 
+        # Exact 20 requested headers in precise order
         headers = [
-            "Business Name", "System Unit", "Issued/Company Owned", "Employee's Name",
-            "Date Visited", "IT Code", "Model / Brand", "Processor (CPU)", "RAM", "SSD Capacity", "HDD Capacity",
-            "Serial (HDD&ALL UNIT)", "Monitor FA", "Keyboard FA", "Mouse FA", "Printer FA", "Router FA",
-            "Webcam FA", "UPS FA", "Speedtest Profile", "OS Version", "Description/ Specs", "Date Issued", "Unit Age",
-            "Depreciation date", "Findings", "FA #", "MAC Address", "Action Taken",
-            "Remarks", "Tech Support"
+            "Business Name", 
+            "System Unit", 
+            "Issued/Company Owned", 
+            "Employee's Name",
+            "Date Visited", 
+            "IT Code", 
+            "Model / Brand", 
+            "RAM", 
+            "Storage Capacity",
+            "Serial (HDD&ALL UNIT)", 
+            "Description/ Specs", 
+            "Date Issued", 
+            "Unit Age",
+            "Depreciation date", 
+            "Findings", 
+            "FA #", 
+            "MAC Address", 
+            "Action Taken",
+            "Remarks", 
+            "Tech Support"
         ]
         ws.append(headers)
 
+        # Style header row (Solid Dark Blue with White Bold Text)
         for col_num in range(1, len(headers) + 1):
             cell = ws.cell(row=1, column=col_num)
             cell.font = openpyxl.styles.Font(bold=True, color="FFFFFF")
             cell.fill = openpyxl.styles.PatternFill(start_color="0284C7", end_color="0284C7", fill_type="solid")
 
+        # Map each record strictly to the 20 requested columns
         for r in records:
             def fmt_d(d): return str(d) if d else ""
             row = [
@@ -280,20 +301,9 @@ def export_excel():
                 fmt_d(r.get('date_visited')),
                 r.get('it_code', ''),
                 r.get('model_brand', ''),
-                r.get('processor_cpu', ''),
                 r.get('ram', ''),
                 r.get('storage_capacity', ''),
-                r.get('hdd_capacity', ''),
                 r.get('serial_hdd_all', ''),
-                r.get('monitor_fa', ''),
-                r.get('keyboard_fa', ''),
-                r.get('mouse_fa', ''),
-                r.get('printer_fa', ''),
-                r.get('router_fa', ''),
-                r.get('webcam_fa', ''),
-                r.get('ups_fa', ''),
-                r.get('speedtest_profile', ''),
-                r.get('os_version', ''),
                 r.get('description_specs', ''),
                 fmt_d(r.get('date_issued')),
                 r.get('unit_age', ''),
@@ -307,6 +317,7 @@ def export_excel():
             ]
             ws.append(row)
 
+        # Auto-fit column widths cleanly
         for col in ws.columns:
             max_len = max(len(str(cell.value or '')) for cell in col)
             col_letter = openpyxl.utils.get_column_letter(col[0].column)
