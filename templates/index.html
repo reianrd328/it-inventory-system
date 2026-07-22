@@ -6,7 +6,7 @@
     <title>IT Inventory & Inspection Management</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background: #eef2f5; color: #333; }
-        .container { max-width: 1300px; margin: 0 auto; }
+        .container { max-width: 1350px; margin: 0 auto; }
         .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
         .admin-card { border-left: 5px solid #0284c7; background: #f0f9ff; }
         .export-card { border-left: 5px solid #10b981; background: #f0fdf4; }
@@ -23,6 +23,8 @@
         .btn-print { background: #28a745; margin-top: 0; }
         .btn-print:hover { background: #1e7e34; }
         .btn-danger { background: #dc3545; padding: 8px 15px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 13px; color: white; }
+        .btn-action-edit { background: #eab308; color: black; border: none; padding: 4px 8px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px; margin-top: 0; margin-right: 4px; }
+        .btn-action-delete { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px; margin-top: 0; }
         .table-responsive { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; font-size: 13px; }
         th, td { border: 1px solid #ddd; padding: 8px 10px; text-align: left; }
@@ -73,39 +75,37 @@
         {% endif %}
 
         <!-- EXPORT TO EXCEL CONTROL CARD -->
-       <!-- EXPORT TO EXCEL CONTROL CARD -->
-<div class="card export-card no-print">
-    <h3 style="margin-top: 0; color: #166534;">📊 Export Inventory to Excel</h3>
-    <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
-        <div class="form-group">
-            <label>Export Filter Mode</label>
-            <select id="export_mode" onchange="toggleExportInputs()">
-                <option value="all">Export All Records</option>
-                <option value="day">Export by Day (Date Visited)</option>
-                <option value="month">Export by Month (Date Visited)</option>
-            </select>
-        </div>
+        <div class="card export-card no-print">
+            <h3 style="margin-top: 0; color: #166534;">📊 Export Inventory to Excel</h3>
+            <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+                <div class="form-group">
+                    <label>Export Filter Mode</label>
+                    <select id="export_mode" onchange="toggleExportInputs()">
+                        <option value="all">Export All Records</option>
+                        <option value="day">Export by Day (Date Visited)</option>
+                        <option value="month">Export by Month (Date Visited)</option>
+                    </select>
+                </div>
 
-        <div class="form-group" id="group_export_date" style="display: none;">
-            <label>Select Date</label>
-            <input type="date" id="export_date">
-        </div>
+                <div class="form-group" id="group_export_date" style="display: none;">
+                    <label>Select Date</label>
+                    <input type="date" id="export_date">
+                </div>
 
-        <!-- UPDATED WITH SAMPLE FORMAT HINT -->
-        <div class="form-group" id="group_export_month" style="display: none;">
-            <label>Select Month <small style="color: #059669; font-weight: normal;">(YYYY-MM e.g. 2026-07)</small></label>
-            <input type="month" id="export_month" placeholder="2026-07">
-        </div>
+                <div class="form-group" id="group_export_month" style="display: none;">
+                    <label>Select Month <small style="color: #059669; font-weight: normal;">(YYYY-MM e.g. 2026-07)</small></label>
+                    <input type="month" id="export_month" placeholder="2026-07">
+                </div>
 
-        <button type="button" class="btn-excel" onclick="downloadExcel()">
-            📥 Download Excel (.xlsx)
-        </button>
-    </div>
-</div>
+                <button type="button" class="btn-excel" onclick="downloadExcel()">
+                    📥 Download Excel (.xlsx)
+                </button>
+            </div>
+        </div>
 
         <!-- Entry Form for 21 IT Inventory Fields -->
-        <div class="card no-print">
-            <h3>Record Unit / Maintenance Report</h3>
+        <div class="card no-print" id="formCard">
+            <h3 id="formTitle">Record Unit / Maintenance Report</h3>
             <form id="inventoryForm">
                 <div class="form-grid">
                     <div class="form-group"><label>IT Business Name</label><input type="text" id="it_business_name"></div>
@@ -127,7 +127,6 @@
                     <div class="form-group"><label>Serial (HDD & All Unit)</label><input type="text" id="serial_hdd_all"></div>
                     <div class="form-group"><label>Date Issued</label><input type="date" id="date_issued" onchange="calculateDates()"></div>
                     
-                    <!-- AUTOMATICALLY CALCULATED FIELDS -->
                     <div class="form-group">
                         <label>Unit Age (Auto)</label>
                         <input type="text" id="unit_age" class="readonly-input" placeholder="Auto-computed" readonly>
@@ -146,7 +145,10 @@
                     <div class="form-group full-width"><label>Action Taken</label><textarea id="action_taken" rows="2"></textarea></div>
                     <div class="form-group full-width"><label>Remarks</label><textarea id="remarks" rows="2"></textarea></div>
                 </div>
-                <button type="submit">Save Record</button>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" id="btnSaveRecord">Save Record</button>
+                    <button type="button" id="btnCancelEdit" style="background: #64748b; display: none;" onclick="resetInventoryForm()">Cancel Edit</button>
+                </div>
             </form>
         </div>
 
@@ -170,6 +172,7 @@
                             <th>Serials</th>
                             <th>Findings & Action Taken</th>
                             <th>Tech Support</th>
+                            <th class="no-print">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="inventoryTable">
@@ -181,6 +184,8 @@
     </div>
 
     <script>
+        let rawInventoryData = [];
+
         document.addEventListener('DOMContentLoaded', () => {
             loadInventory();
             initIdleTimer();
@@ -191,7 +196,6 @@
             const visitedVal = document.getElementById('date_visited').value;
             const issuedVal = document.getElementById('date_issued').value;
 
-            // 1. Compute Depreciation Date (Date Issued + 5 Years)
             if (issuedVal) {
                 const issuedDate = new Date(issuedVal);
                 const depreciationDate = new Date(issuedDate);
@@ -206,7 +210,6 @@
                 document.getElementById('depreciation_date').value = '';
             }
 
-            // 2. Compute Unit Age (Date Visited - Date Issued)
             if (visitedVal && issuedVal) {
                 const visitedDate = new Date(visitedVal);
                 const issuedDate = new Date(issuedVal);
@@ -235,7 +238,7 @@
 
         // --- 1-MINUTE IDLE AUTO-LOGOUT SCRIPT ---
         let idleTimer;
-        const IDLE_LIMIT = 60 * 1000; // 60 Seconds (1 Minute)
+        const IDLE_LIMIT = 60 * 1000;
 
         function resetIdleTimer() {
             clearTimeout(idleTimer);
@@ -279,6 +282,63 @@
             }
 
             window.location.href = url;
+        }
+
+        // --- EDIT RECORD HANDLER ---
+        function editRecord(itCode) {
+            const item = rawInventoryData.find(i => i.it_code === itCode);
+            if (!item) return;
+
+            document.getElementById('it_business_name').value = item.it_business_name || '';
+            document.getElementById('system_unit').value = item.system_unit || '';
+            document.getElementById('issued_company_owned').value = item.issued_company_owned || 'Company Owned';
+            document.getElementById('employee_name').value = item.employee_name || '';
+            document.getElementById('date_visited').value = item.date_visited || '';
+            document.getElementById('it_code').value = item.it_code || '';
+            document.getElementById('model_brand').value = item.model_brand || '';
+            document.getElementById('ram').value = item.ram || '';
+            document.getElementById('storage_capacity').value = item.storage_capacity || '';
+            document.getElementById('serial_hdd_all').value = item.serial_hdd_all || '';
+            document.getElementById('date_issued').value = item.date_issued || '';
+            document.getElementById('fa_number').value = item.fa_number || '';
+            document.getElementById('mac_address').value = item.mac_address || '';
+            document.getElementById('tech_support').value = item.tech_support || '';
+            document.getElementById('description_specs').value = item.description_specs || '';
+            document.getElementById('findings').value = item.findings || '';
+            document.getElementById('action_taken').value = item.action_taken || '';
+            document.getElementById('remarks').value = item.remarks || '';
+
+            calculateDates();
+
+            document.getElementById('formTitle').innerText = `✏️ Edit Record (${item.it_code})`;
+            document.getElementById('btnSaveRecord').innerText = 'Update Record';
+            document.getElementById('btnCancelEdit').style.display = 'inline-block';
+
+            document.getElementById('formCard').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetInventoryForm() {
+            document.getElementById('inventoryForm').reset();
+            document.getElementById('unit_age').value = '';
+            document.getElementById('depreciation_date').value = '';
+            document.getElementById('formTitle').innerText = 'Record Unit / Maintenance Report';
+            document.getElementById('btnSaveRecord').innerText = 'Save Record';
+            document.getElementById('btnCancelEdit').style.display = 'none';
+        }
+
+        // --- DELETE RECORD HANDLER ---
+        async function deleteRecord(itCode) {
+            if (!confirm(`Are you sure you want to delete record with IT Code: ${itCode}?`)) return;
+
+            const res = await fetch('/api/inventory/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ it_code: itCode })
+            });
+
+            const data = await res.json();
+            alert(data.message);
+            if (res.ok) loadInventory();
         }
 
         // --- Super Admin User Creation ---
@@ -336,10 +396,7 @@
 
             if (res.ok) {
                 alert('Record saved successfully!');
-                document.getElementById('inventoryForm').reset();
-                // Clear auto-computed fields after reset
-                document.getElementById('unit_age').value = '';
-                document.getElementById('depreciation_date').value = '';
+                resetInventoryForm();
                 loadInventory();
             } else {
                 alert('Failed to save record.');
@@ -349,11 +406,11 @@
         // --- Fetch & Load Inventory Table Data ---
         async function loadInventory() {
             const res = await fetch('/api/inventory');
-            const data = await res.json();
+            rawInventoryData = await res.json();
             const tbody = document.getElementById('inventoryTable');
             tbody.innerHTML = '';
 
-            data.forEach(item => {
+            rawInventoryData.forEach(item => {
                 const row = `<tr>
                     <td><strong>${item.it_code}</strong><br><small>${item.issued_company_owned || ''}</small></td>
                     <td><strong>${item.it_business_name || ''}</strong><br>${item.employee_name || ''}</td>
@@ -363,6 +420,10 @@
                     <td><small>${item.serial_hdd_all || ''}</small></td>
                     <td><strong>Findings:</strong> ${item.findings || 'N/A'}<br><strong>Action:</strong> ${item.action_taken || 'N/A'}</td>
                     <td>${item.tech_support || ''}<br><small>${item.date_visited || ''}</small></td>
+                    <td class="no-print">
+                        <button class="btn-action-edit" onclick="editRecord('${item.it_code}')">✏️ Edit</button>
+                        <button class="btn-action-delete" onclick="deleteRecord('${item.it_code}')">🗑️ Delete</button>
+                    </td>
                 </tr>`;
                 tbody.innerHTML += row;
             });
