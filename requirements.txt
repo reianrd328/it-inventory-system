@@ -1,5 +1,5 @@
 Flask
 pymysql
 gunicorn
-webauthn
 werkzeug
+openpyxl
