@@ -89,7 +89,7 @@ def setup_super_admin():
     finally:
         conn.close()
 
-# --- LOGIN AUTHENTICATION ROUTE (REJECTS DISABLED ACCOUNTS) ---
+# --- LOGIN AUTHENTICATION ROUTE ---
 @app.route('/api/login/password', methods=['POST'])
 def login_password():
     data = request.json
@@ -103,7 +103,6 @@ def login_password():
             user = cursor.fetchone()
 
         if user and check_password_hash(user['password_hash'], password):
-            # CHECK IF ACCOUNT IS DISABLED
             if user.get('is_active') == 0:
                 return jsonify({"status": "error", "message": "Your account has been disabled. Please contact Super Admin."}), 403
 
@@ -119,7 +118,7 @@ def login_password():
     finally:
         conn.close()
 
-# --- USER MANAGEMENT ENDPOINTS (SUPER ADMIN ONLY) ---
+# --- USER MANAGEMENT ENDPOINTS ---
 @app.route('/api/users', methods=['GET'])
 def get_users():
     if 'user_id' not in session or session.get('user', {}).get('role') != 'Super Admin':
@@ -167,7 +166,7 @@ def toggle_user_status():
 
     data = request.json
     user_id = data.get('user_id')
-    new_status = data.get('is_active') # 1 for active, 0 for disabled
+    new_status = data.get('is_active')
 
     if user_id == session.get('user_id'):
         return jsonify({"status": "error", "message": "You cannot disable your own active session!"}), 400
@@ -197,16 +196,16 @@ def handle_inventory():
             with conn.cursor() as cursor:
                 sql = """
                 INSERT INTO it_inventory (
-                    it_business_name, system_unit, issued_company_owned, employee_name,
+                    it_business_name, it_department, system_unit, issued_company_owned, employee_name,
                     date_visited, it_code, model_brand, ram, storage_capacity,
                     serial_hdd_all, description_specs, date_issued, unit_age,
                     depreciation_date, findings, fa_number, mac_address,
                     action_taken, remarks, tech_support,
                     monitor_fa, keyboard_fa, mouse_fa, printer_fa, router_fa,
                     webcam_fa, ups_fa, speedtest_profile, processor_cpu, os_version, hdd_capacity
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ON DUPLICATE KEY UPDATE
-                    it_business_name=%s, system_unit=%s, issued_company_owned=%s, employee_name=%s,
+                    it_business_name=%s, it_department=%s, system_unit=%s, issued_company_owned=%s, employee_name=%s,
                     date_visited=%s, model_brand=%s, ram=%s, storage_capacity=%s,
                     serial_hdd_all=%s, description_specs=%s, date_issued=%s, unit_age=%s,
                     depreciation_date=%s, findings=%s, fa_number=%s, mac_address=%s,
@@ -216,7 +215,7 @@ def handle_inventory():
                 """
                 def parse_date(d): return d if d else None
                 vals = (
-                    data.get('it_business_name'), data.get('system_unit'), data.get('issued_company_owned'), data.get('employee_name'),
+                    data.get('it_business_name'), data.get('it_department'), data.get('system_unit'), data.get('issued_company_owned'), data.get('employee_name'),
                     parse_date(data.get('date_visited')), data.get('it_code'), data.get('model_brand'), data.get('ram'), data.get('storage_capacity'),
                     data.get('serial_hdd_all'), data.get('description_specs'), parse_date(data.get('date_issued')), data.get('unit_age'),
                     parse_date(data.get('depreciation_date')), data.get('findings'), data.get('fa_number'), data.get('mac_address'),
@@ -224,7 +223,7 @@ def handle_inventory():
                     data.get('monitor_fa'), data.get('keyboard_fa'), data.get('mouse_fa'), data.get('printer_fa'), data.get('router_fa'),
                     data.get('webcam_fa'), data.get('ups_fa'), data.get('speedtest_profile'), data.get('processor_cpu'), data.get('os_version'), data.get('hdd_capacity'),
                     
-                    data.get('it_business_name'), data.get('system_unit'), data.get('issued_company_owned'), data.get('employee_name'),
+                    data.get('it_business_name'), data.get('it_department'), data.get('system_unit'), data.get('issued_company_owned'), data.get('employee_name'),
                     parse_date(data.get('date_visited')), data.get('model_brand'), data.get('ram'), data.get('storage_capacity'),
                     data.get('serial_hdd_all'), data.get('description_specs'), parse_date(data.get('date_issued')), data.get('unit_age'),
                     parse_date(data.get('depreciation_date')), data.get('findings'), data.get('fa_number'), data.get('mac_address'),
@@ -267,7 +266,7 @@ def delete_inventory():
     finally:
         conn.close()
 
-# --- EXPORT TO EXCEL ROUTE (STRICT 20 COLUMNS) ---
+# --- EXPORT TO EXCEL ROUTE (UPDATED HEADERS WITH BUSINESS NAME & DEPARTMENT) ---
 @app.route('/api/inventory/export', methods=['GET'])
 def export_excel():
     if 'user_id' not in session:
@@ -299,7 +298,7 @@ def export_excel():
         ws.title = "IT Inventory"
 
         headers = [
-            "Business Name", "System Unit", "Issued/Company Owned", "Employee's Name",
+            "Business Name", "Department / Branch", "System Unit", "Issued/Company Owned", "Employee's Name",
             "Date Visited", "IT Code", "Model / Brand", "RAM", "Storage Capacity",
             "Serial (HDD&ALL UNIT)", "Description/ Specs", "Date Issued", "Unit Age",
             "Depreciation date", "Findings", "FA #", "MAC Address", "Action Taken",
@@ -316,6 +315,7 @@ def export_excel():
             def fmt_d(d): return str(d) if d else ""
             row = [
                 r.get('it_business_name', ''),
+                r.get('it_department', ''),
                 r.get('system_unit', ''),
                 r.get('issued_company_owned', ''),
                 r.get('employee_name', ''),
