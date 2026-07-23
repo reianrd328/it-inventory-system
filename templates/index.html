@@ -36,62 +36,93 @@
         th, td { border: 1px solid #ddd; padding: 8px 10px; text-align: left; }
         th { background-color: #f1f4f8; font-weight: bold; }
         
-        /* --- PRINT TEMPLATES HIDDEN ON SCREEN --- */
-        .pm-template, .bv-template { display: none; }
+        /* --- PRINT TEMPLATES HIDDEN BY DEFAULT --- */
+        .pm-template, .bv-template { display: none !important; }
 
-        /* --- PRINT STYLES (COMPACT 1-PAGE FIT) --- */
+        /* --- PRINT STYLES (SEPARATED ON DIFFERENT PAGES) --- */
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 5mm; /* Tight margins to force 1 page */
+                margin: 8mm;
             }
 
             .no-print { display: none !important; }
             body { background: white; margin: 0; padding: 0; color: #000; font-family: Arial, sans-serif; }
             
-            /* 1. RAQUEL PREVENTIVE MAINTENANCE FORM PRINT STYLES */
-            .pm-template { display: block !important; width: 100%; }
+            /* SHOW ONLY ACTIVE PRINT SHEET */
+            .active-print-sheet {
+                display: block !important;
+                width: 100%;
+            }
+
+            /* FORCE PAGE BREAK BETWEEN COPIES */
+            .page-break {
+                break-after: page;
+                page-break-after: always;
+            }
+
+            /* 1. PREVENTIVE MAINTENANCE FORM (FULL PAGE PER COPY) */
             .pm-form-instance {
-                height: 48vh;
+                height: 95vh;
                 box-sizing: border-box;
-                padding: 4px;
+                padding: 10px;
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
+                break-after: page;
+                page-break-after: always;
             }
-            .cut-line { text-align: center; font-size: 7.5pt; border-top: 1px dashed #666; margin: 2px 0; padding-top: 1px; color: #555; }
-            table.pm-header-tbl, table.pm-meta-tbl { width: 100%; border-collapse: collapse; margin-bottom: 3px; }
-            table.pm-header-tbl td, table.pm-meta-tbl td { border: 1px solid #000; padding: 1.5px 3px; font-size: 7pt; }
-            .brand-cell { width: 25%; text-align: center; vertical-align: middle; padding: 1px; }
-            .brand-cell img { max-width: 100%; max-height: 32px; display: block; margin: 0 auto; }
-            .title-cell { font-weight: bold; font-size: 8.5pt; text-align: center; text-transform: uppercase; background: #f5f5f5; }
+            .pm-form-instance:last-child {
+                break-after: avoid;
+                page-break-after: avoid;
+            }
+            .cut-line { display: none; } /* Hidden since forms are on separate pages */
 
-            .pm-grid { display: flex; gap: 4px; margin-bottom: 3px; }
+            table.pm-header-tbl, table.pm-meta-tbl { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+            table.pm-header-tbl td, table.pm-meta-tbl td { border: 1px solid #000; padding: 4px 6px; font-size: 8.5pt; }
+            .brand-cell { width: 25%; text-align: center; vertical-align: middle; padding: 2px; }
+            .brand-cell img { max-width: 100%; max-height: 42px; display: block; margin: 0 auto; }
+            .title-cell { font-weight: bold; font-size: 11pt; text-align: center; text-transform: uppercase; background: #f5f5f5; }
+
+            .pm-grid { display: flex; gap: 8px; margin-bottom: 8px; }
             .pm-grid-left { width: 52%; }
             .pm-grid-right { width: 48%; display: flex; flex-direction: column; justify-content: space-between; }
-            table.pm-chk-tbl { width: 100%; border-collapse: collapse; font-size: 6.2pt; }
-            table.pm-chk-tbl th, table.pm-chk-tbl td { border: 1px solid #000; padding: 1px 2px; }
+            table.pm-chk-tbl { width: 100%; border-collapse: collapse; font-size: 7.5pt; }
+            table.pm-chk-tbl th, table.pm-chk-tbl td { border: 1px solid #000; padding: 3px 5px; }
             table.pm-chk-tbl th { background: #e2e8f0; font-weight: bold; text-align: left; }
-            .chk-mark { text-align: center; width: 12px; font-weight: bold; }
+            .chk-mark { text-align: center; width: 16px; font-weight: bold; }
 
-            .remarks-box { border: 1px solid #000; padding: 2px; font-size: 6.5pt; height: 50px; }
-            .remarks-title { font-weight: bold; color: #8b0000; margin-bottom: 1px; }
-            table.pm-sig-tbl { width: 100%; border-collapse: collapse; margin-top: 3px; }
-            table.pm-sig-tbl td { border: 1px solid #000; height: 28px; text-align: center; vertical-align: bottom; font-size: 6pt; padding-bottom: 1px; }
+            .remarks-box { border: 1px solid #000; padding: 6px; font-size: 8pt; height: 90px; }
+            .remarks-title { font-weight: bold; color: #8b0000; margin-bottom: 3px; }
+            table.pm-sig-tbl { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            table.pm-sig-tbl td { border: 1px solid #000; height: 45px; text-align: center; vertical-align: bottom; font-size: 7.5pt; padding-bottom: 3px; }
 
-            /* 2. BRANCH VISIT CHECKLIST PRINT STYLES (COMPACT 1-PAGE LAYOUT) */
-            .bv-template { display: block !important; width: 100%; }
-            .bv-grid-container { display: flex; justify-content: space-between; gap: 10px; }
-            .bv-column { width: 49%; font-size: 6.5pt; line-height: 1.15; }
-            .bv-header { font-size: 9.5pt; font-weight: bold; text-align: center; border-bottom: 1.5px solid #000; padding-bottom: 1px; margin-bottom: 3px; }
-            .bv-section-title { font-weight: bold; font-size: 7.5pt; margin-top: 3px; margin-bottom: 1px; }
-            .bv-list { list-style: none; padding-left: 0; margin: 0 0 3px 0; }
-            .bv-list li { margin-bottom: 0.5px; }
-            .chk-box { color: red; font-weight: bold; margin-right: 2px; }
+            /* 2. BRANCH VISIT CHECKLIST (FULL PAGE PER COPY) */
+            .bv-grid-container {
+                display: block !important; /* Stack vertically for separate pages */
+            }
+            .bv-column {
+                width: 100% !important;
+                font-size: 8pt;
+                line-height: 1.25;
+                break-after: page;
+                page-break-after: always;
+                box-sizing: border-box;
+                padding-bottom: 15px;
+            }
+            .bv-column:last-child {
+                break-after: avoid;
+                page-break-after: avoid;
+            }
+            .bv-header { font-size: 12pt; font-weight: bold; text-align: center; border-bottom: 2px solid #000; padding-bottom: 3px; margin-bottom: 6px; }
+            .bv-section-title { font-weight: bold; font-size: 9.5pt; margin-top: 6px; margin-bottom: 3px; }
+            .bv-list { list-style: none; padding-left: 0; margin: 0 0 6px 0; }
+            .bv-list li { margin-bottom: 2px; }
+            .chk-box { color: red; font-weight: bold; margin-right: 4px; }
             
-            table.bv-spec-tbl { width: 100%; border-collapse: collapse; margin-top: 3px; font-size: 6pt; }
-            table.bv-spec-tbl th, table.bv-spec-tbl td { border: 1px solid #000; padding: 1.5px 2px; }
-            table.bv-spec-tbl th { background: #222; color: #fff; text-align: left; font-size: 6.2pt; }
+            table.bv-spec-tbl { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 7.5pt; }
+            table.bv-spec-tbl th, table.bv-spec-tbl td { border: 1px solid #000; padding: 3px 5px; }
+            table.bv-spec-tbl th { background: #222; color: #fff; text-align: left; font-size: 8pt; }
         }
     </style>
 </head>
@@ -252,7 +283,7 @@
                             <td class="brand-cell" rowspan="2">
                                 <img src="/static/logo.png" alt="Raquel Logo" onerror="this.src='{{ url_for('static', filename='logo.png') }}'">
                             </td>
-                            <td class="title-cell" rowspan="2">PREVENTIVE COMPUTER MAINTENANCE FORM</td>
+                            <td class="title-cell" rowspan="2">PREVENTIVE COMPUTER MAINTENANCE FORM (FILE COPY)</td>
                             <td><strong>Revision Date:</strong> August 24, 2020</td>
                             <td><strong>Code:</strong> ITD Form 001.01</td>
                         </tr>
@@ -329,8 +360,6 @@
                 </table>
             </div>
 
-            <div class="cut-line">✂ - - - - - - - - - - - - - - - - CUT HERE (FILE COPY / BRANCH COPY) - - - - - - - - - - - - - - - - ✂</div>
-
             <div class="pm-form-instance">
                 <div>
                     <table class="pm-header-tbl">
@@ -338,7 +367,7 @@
                             <td class="brand-cell" rowspan="2">
                                 <img src="/static/logo.png" alt="Raquel Logo" onerror="this.src='{{ url_for('static', filename='logo.png') }}'">
                             </td>
-                            <td class="title-cell" rowspan="2">PREVENTIVE COMPUTER MAINTENANCE FORM</td>
+                            <td class="title-cell" rowspan="2">PREVENTIVE COMPUTER MAINTENANCE FORM (BRANCH COPY)</td>
                             <td><strong>Revision Date:</strong> August 24, 2020</td>
                             <td><strong>Code:</strong> ITD Form 001.01</td>
                         </tr>
@@ -419,7 +448,7 @@
         <div id="bvPrintSheet" class="bv-template">
             <div class="bv-grid-container">
                 <div class="bv-column">
-                    <div class="bv-header">BRANCH VISIT <span class="bv_val_branch"></span></div>
+                    <div class="bv-header">BRANCH VISIT <span class="bv_val_branch"></span> (FILE COPY)</div>
                     
                     <div class="bv-section-title">PART 1</div>
                     <ul class="bv-list">
@@ -489,7 +518,7 @@
                             <tr>
                                 <td colspan="2">
                                     <strong style="color: #16a34a;">Auxiliary App:</strong><br>
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1px; font-size: 5.8pt; margin-top: 1px;">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; font-size: 6.5pt; margin-top: 2px;">
                                         <span>☐ BPI Banko</span><span>☐ CTI Loading</span>
                                         <span>☐ Sendah – Paymaya</span><span>☐ Peraquel</span>
                                         <span>☐ Bayad Center</span><span>☐ Biyahe ko</span>
@@ -502,7 +531,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2" style="height: 25px; vertical-align: top;">
+                                <td colspan="2" style="height: 35px; vertical-align: top;">
                                     <strong style="color: #dc2626;">Concerns / Remarks:</strong><br>
                                     <span class="bv_val_remarks"></span>
                                 </td>
@@ -512,7 +541,7 @@
                 </div>
 
                 <div class="bv-column">
-                    <div class="bv-header">BRANCH VISIT <span class="bv_val_branch"></span></div>
+                    <div class="bv-header">BRANCH VISIT <span class="bv_val_branch"></span> (BRANCH COPY)</div>
                     
                     <div class="bv-section-title">PART 1</div>
                     <ul class="bv-list">
@@ -582,7 +611,7 @@
                             <tr>
                                 <td colspan="2">
                                     <strong style="color: #16a34a;">Auxiliary App:</strong><br>
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1px; font-size: 5.8pt; margin-top: 1px;">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; font-size: 6.5pt; margin-top: 2px;">
                                         <span>☐ BPI Banko</span><span>☐ CTI Loading</span>
                                         <span>☐ Sendah – Paymaya</span><span>☐ Peraquel</span>
                                         <span>☐ Bayad Center</span><span>☐ Biyahe ko</span>
@@ -595,7 +624,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2" style="height: 25px; vertical-align: top;">
+                                <td colspan="2" style="height: 35px; vertical-align: top;">
                                     <strong style="color: #dc2626;">Concerns / Remarks:</strong><br>
                                     <span class="bv_val_remarks"></span>
                                 </td>
@@ -779,10 +808,13 @@
             if (res.ok) loadInventory();
         }
 
-        // --- PRINT 1: RAQUEL PM FORM HANDLER ---
+        // --- PRINT 1: RAQUEL PM FORM HANDLER (ISOLATED PRINT) ---
         function printPMReport(itCode) {
             const item = rawInventoryData.find(i => i.it_code === itCode);
             if (!item) return;
+
+            document.getElementById('pmPrintSheet').classList.add('active-print-sheet');
+            document.getElementById('bvPrintSheet').classList.remove('active-print-sheet');
 
             document.querySelectorAll('.pm_val_branch').forEach(el => el.innerText = item.it_business_name || '');
             document.querySelectorAll('.pm_val_date').forEach(el => el.innerText = item.date_visited || '');
@@ -799,10 +831,13 @@
             window.print();
         }
 
-        // --- PRINT 2: BRANCH VISIT CHECKLIST HANDLER ---
+        // --- PRINT 2: BRANCH VISIT CHECKLIST HANDLER (ISOLATED PRINT) ---
         function printBranchVisitReport(itCode) {
             const item = rawInventoryData.find(i => i.it_code === itCode);
             if (!item) return;
+
+            document.getElementById('bvPrintSheet').classList.add('active-print-sheet');
+            document.getElementById('pmPrintSheet').classList.remove('active-print-sheet');
 
             document.querySelectorAll('.bv_val_branch').forEach(el => el.innerText = item.it_business_name ? `________________ (${item.it_business_name})` : '________________');
             document.querySelectorAll('.bv_val_serial').forEach(el => el.innerText = item.serial_hdd_all || 'N/A');
