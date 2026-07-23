@@ -6,7 +6,6 @@ import openpyxl
 from io import BytesIO
 
 app = Flask(__name__)
-# Secret key used to encrypt user sessions
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "super_secret_it_inventory_key_2026")
 
 # --- DATABASE CONNECTION ---
@@ -17,10 +16,9 @@ def get_db_connection():
         password=os.environ.get("TIDB_PASSWORD", ""),
         database=os.environ.get("TIDB_NAME", "test"),
         port=int(os.environ.get("TIDB_PORT", 4000)),
-        ssl={'ssl': {}}  # Required for TiDB Cloud Serverless SSL
+        ssl={'ssl': {}}
     )
 
-# Helper function to check if any admin accounts exist
 def check_admin_exists():
     conn = get_db_connection()
     try:
@@ -39,7 +37,6 @@ def check_admin_exists():
 def index():
     if not check_admin_exists():
         return redirect('/setup-admin')
-    # Automatically redirect unauthenticated visitors to login page
     if 'user_id' not in session:
         return redirect('/login')
     return render_template('index.html', user=session.get('user'))
@@ -82,7 +79,7 @@ def setup_super_admin():
     try:
         with conn.cursor() as cursor:
             cursor.execute(
-                "INSERT INTO users (username, password_hash, full_name, role) VALUES (%s, %s, %s, 'Super Admin')",
+                "INSERT INTO users (username, password_hash, full_name, role, is_active) VALUES (%s, %s, %s, 'Super Admin', 1)",
                 (username, pwd_hash, full_name)
             )
         conn.commit()
@@ -92,7 +89,51 @@ def setup_super_admin():
     finally:
         conn.close()
 
-# --- CREATE USER ROUTE (Super Admin Only) ---
+# --- LOGIN AUTHENTICATION ROUTE (REJECTS DISABLED ACCOUNTS) ---
+@app.route('/api/login/password', methods=['POST'])
+def login_password():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+
+    conn = get_db_connection()
+    try:
+        with conn.cursor(pymysql.cursors.DictCursor) as cursor:
+            cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
+            user = cursor.fetchone()
+
+        if user and check_password_hash(user['password_hash'], password):
+            # CHECK IF ACCOUNT IS DISABLED
+            if user.get('is_active') == 0:
+                return jsonify({"status": "error", "message": "Your account has been disabled. Please contact Super Admin."}), 403
+
+            session['user_id'] = user['id']
+            session['user'] = {
+                "id": user['id'], 
+                "username": user['username'], 
+                "full_name": user['full_name'],
+                "role": user['role']
+            }
+            return jsonify({"status": "success", "message": "Login successful!"})
+        return jsonify({"status": "error", "message": "Invalid username or password"}), 401
+    finally:
+        conn.close()
+
+# --- USER MANAGEMENT ENDPOINTS (SUPER ADMIN ONLY) ---
+@app.route('/api/users', methods=['GET'])
+def get_users():
+    if 'user_id' not in session or session.get('user', {}).get('role') != 'Super Admin':
+        return jsonify({"error": "Unauthorized"}), 403
+
+    conn = get_db_connection()
+    try:
+        with conn.cursor(pymysql.cursors.DictCursor) as cursor:
+            cursor.execute("SELECT id, username, full_name, role, COALESCE(is_active, 1) as is_active FROM users ORDER BY id ASC")
+            users = cursor.fetchall()
+        return jsonify(users)
+    finally:
+        conn.close()
+
 @app.route('/api/users/create', methods=['POST'])
 def create_user_dashboard():
     if 'user_id' not in session or session.get('user', {}).get('role') != 'Super Admin':
@@ -109,7 +150,7 @@ def create_user_dashboard():
     try:
         with conn.cursor() as cursor:
             cursor.execute(
-                "INSERT INTO users (username, password_hash, full_name, role) VALUES (%s, %s, %s, %s)",
+                "INSERT INTO users (username, password_hash, full_name, role, is_active) VALUES (%s, %s, %s, %s, 1)",
                 (username, pwd_hash, full_name, role)
             )
         conn.commit()
@@ -119,33 +160,31 @@ def create_user_dashboard():
     finally:
         conn.close()
 
-# --- LOGIN AUTHENTICATION ROUTE ---
-@app.route('/api/login/password', methods=['POST'])
-def login_password():
+@app.route('/api/users/toggle-status', methods=['POST'])
+def toggle_user_status():
+    if 'user_id' not in session or session.get('user', {}).get('role') != 'Super Admin':
+        return jsonify({"status": "error", "message": "Unauthorized. Super Admin privilege required."}), 403
+
     data = request.json
-    username = data.get('username')
-    password = data.get('password')
+    user_id = data.get('user_id')
+    new_status = data.get('is_active') # 1 for active, 0 for disabled
+
+    if user_id == session.get('user_id'):
+        return jsonify({"status": "error", "message": "You cannot disable your own active session!"}), 400
 
     conn = get_db_connection()
     try:
-        with conn.cursor(pymysql.cursors.DictCursor) as cursor:
-            cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
-            user = cursor.fetchone()
-
-        if user and check_password_hash(user['password_hash'], password):
-            session['user_id'] = user['id']
-            session['user'] = {
-                "id": user['id'], 
-                "username": user['username'], 
-                "full_name": user['full_name'],
-                "role": user['role']
-            }
-            return jsonify({"status": "success", "message": "Login successful!"})
-        return jsonify({"status": "error", "message": "Invalid username or password"}), 401
+        with conn.cursor() as cursor:
+            cursor.execute("UPDATE users SET is_active = %s WHERE id = %s", (new_status, user_id))
+        conn.commit()
+        status_txt = "enabled" if new_status == 1 else "disabled"
+        return jsonify({"status": "success", "message": f"User status successfully {status_txt}!"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 400
     finally:
         conn.close()
 
-# --- INVENTORY API (FETCH, CREATE, AND UPDATE) ---
+# --- INVENTORY API ---
 @app.route('/api/inventory', methods=['GET', 'POST'])
 def handle_inventory():
     if 'user_id' not in session:
@@ -259,38 +298,20 @@ def export_excel():
         ws = wb.active
         ws.title = "IT Inventory"
 
-        # Exact 20 requested headers in precise order
         headers = [
-            "Business Name", 
-            "System Unit", 
-            "Issued/Company Owned", 
-            "Employee's Name",
-            "Date Visited", 
-            "IT Code", 
-            "Model / Brand", 
-            "RAM", 
-            "Storage Capacity",
-            "Serial (HDD&ALL UNIT)", 
-            "Description/ Specs", 
-            "Date Issued", 
-            "Unit Age",
-            "Depreciation date", 
-            "Findings", 
-            "FA #", 
-            "MAC Address", 
-            "Action Taken",
-            "Remarks", 
-            "Tech Support"
+            "Business Name", "System Unit", "Issued/Company Owned", "Employee's Name",
+            "Date Visited", "IT Code", "Model / Brand", "RAM", "Storage Capacity",
+            "Serial (HDD&ALL UNIT)", "Description/ Specs", "Date Issued", "Unit Age",
+            "Depreciation date", "Findings", "FA #", "MAC Address", "Action Taken",
+            "Remarks", "Tech Support"
         ]
         ws.append(headers)
 
-        # Style header row (Solid Dark Blue with White Bold Text)
         for col_num in range(1, len(headers) + 1):
             cell = ws.cell(row=1, column=col_num)
             cell.font = openpyxl.styles.Font(bold=True, color="FFFFFF")
             cell.fill = openpyxl.styles.PatternFill(start_color="0284C7", end_color="0284C7", fill_type="solid")
 
-        # Map each record strictly to the 20 requested columns
         for r in records:
             def fmt_d(d): return str(d) if d else ""
             row = [
@@ -317,7 +338,6 @@ def export_excel():
             ]
             ws.append(row)
 
-        # Auto-fit column widths cleanly
         for col in ws.columns:
             max_len = max(len(str(cell.value or '')) for cell in col)
             col_letter = openpyxl.utils.get_column_letter(col[0].column)
