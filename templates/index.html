@@ -26,81 +26,43 @@
         .btn-danger { background: #dc3545; padding: 8px 15px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 13px; color: white; }
         
         /* Table Action Buttons */
-        .btn-action-edit { background: #eab308; color: black; border: none; padding: 4px 8px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; margin-right: 2px; }
-        .btn-action-delete { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; margin-right: 2px; }
-        .btn-action-pm { background: #0284c7; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; margin-right: 2px; }
-        .btn-action-bv { background: #8b5cf6; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; margin-right: 2px; }
-        .btn-action-doc { background: #14b8a6; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; }
+        .btn-action-edit { background: #eab308; color: black; border: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; margin-right: 3px; }
+        .btn-action-delete { background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; margin-right: 3px; }
+        .btn-action-bv { background: #8b5cf6; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; }
         
         .table-responsive { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; font-size: 13px; }
         th, td { border: 1px solid #ddd; padding: 8px 10px; text-align: left; }
         th { background-color: #f1f4f8; font-weight: bold; }
         
-        /* --- PRINT TEMPLATES HIDDEN BY DEFAULT --- */
-        .pm-template, .bv-template, .doc-template { display: none !important; }
+        /* --- PRINT TEMPLATE HIDDEN BY DEFAULT --- */
+        .bv-template { display: none !important; }
 
-        /* --- PRINT STYLES (STRICT 1-PAGE FIT) --- */
+        /* --- PRINT STYLES (STRICT 1-PAGE FIT SIDE-BY-SIDE) --- */
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 6mm; /* Tight margins to maximize 1-page space */
+                margin: 6mm; /* Tight margin to ensure single page */
             }
 
             .no-print { display: none !important; }
             body { background: white; margin: 0; padding: 0; color: #000; font-family: Arial, sans-serif; }
             
             /* SHOW ONLY THE ACTIVE PRINT SHEET AND LOCK TO 1 PAGE */
-            .active-print-sheet {
+            .bv-template {
                 display: flex !important;
+                flex-direction: row;
+                justify-content: space-between;
+                position: absolute;
+                left: 0;
+                top: 0;
                 width: 100%;
                 height: 98vh; /* Locks maximum height to 1 page */
                 overflow: hidden; /* Prevents spawning an empty Page 2 */
             }
 
-            /* =========================================
-               1. PM FORM (TOP / BOTTOM LAYOUT)
-               ========================================= */
-            #pmPrintSheet.active-print-sheet {
-                flex-direction: column;
-                justify-content: space-between;
-            }
-            .pm-form-instance {
-                height: 48.5%; /* Almost half the page each */
-                box-sizing: border-box;
-                padding: 4px 8px;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-            }
-            .cut-line-horizontal { text-align: center; font-size: 7.5pt; border-top: 1px dashed #444; margin: 2px 0; padding-top: 2px; color: #444; }
-            table.pm-header-tbl, table.pm-meta-tbl { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
-            table.pm-header-tbl td, table.pm-meta-tbl td { border: 1px solid #000; padding: 2px 4px; font-size: 7.5pt; }
-            .brand-cell { width: 25%; text-align: center; vertical-align: middle; padding: 1px; }
-            .brand-cell img { max-width: 100%; max-height: 38px; display: block; margin: 0 auto; }
-            .title-cell { font-weight: bold; font-size: 10pt; text-align: center; text-transform: uppercase; background: #f5f5f5; }
-            .pm-grid { display: flex; gap: 8px; margin-bottom: 4px; }
-            .pm-grid-left { width: 50%; }
-            .pm-grid-right { width: 50%; display: flex; flex-direction: column; justify-content: space-between; }
-            table.pm-chk-tbl { width: 100%; border-collapse: collapse; font-size: 7pt; }
-            table.pm-chk-tbl th, table.pm-chk-tbl td { border: 1px solid #000; padding: 2.5px 4px; }
-            table.pm-chk-tbl th { background: #e2e8f0; font-weight: bold; text-align: left; }
-            .chk-mark { text-align: center; width: 15px; font-weight: bold; color: #000;}
-            .remarks-box { border: 1px solid #000; padding: 4px; font-size: 7.5pt; min-height: 45px; margin-bottom: 5px; }
-            .remarks-title { font-weight: bold; color: #8b0000; margin-bottom: 2px; }
-            table.pm-sig-tbl { width: 100%; border-collapse: collapse; margin-top: 4px; }
-            table.pm-sig-tbl td { border: 1px solid #000; height: 35px; text-align: center; vertical-align: bottom; font-size: 7.5pt; padding-bottom: 2px; }
-
-            /* =========================================
-               2. BRANCH VISIT & DOCUMENTATION (SIDE BY SIDE)
-               ========================================= */
-            #bvPrintSheet.active-print-sheet, 
-            #docPrintSheet.active-print-sheet {
-                flex-direction: row;
-                justify-content: space-between;
-            }
-            .bv-column, .doc-column {
-                width: 48.5% !important;
+            .bv-column {
+                width: 48.5%;
                 height: 100%;
                 font-size: 7.5pt;
                 line-height: 1.25;
@@ -113,10 +75,11 @@
                 margin: 0 2px;
             }
             .bv-header { font-size: 11pt; font-weight: bold; text-align: center; border-bottom: 1.5px solid #000; padding-bottom: 3px; margin-bottom: 6px; }
-            .bv-section-title { font-weight: bold; font-size: 8.5pt; margin-top: 6px; margin-bottom: 3px; background: #e2e8f0; padding: 2px 4px; border: 1px solid #000; }
+            .bv-section-title { font-weight: bold; font-size: 8.5pt; margin-top: 6px; margin-bottom: 3px; }
             .bv-list { list-style: none; padding-left: 0; margin: 0 0 6px 0; }
             .bv-list li { margin-bottom: 2px; }
             .chk-box { color: red; font-weight: bold; margin-right: 4px; font-size: 9pt; }
+            
             table.bv-spec-tbl { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 6.8pt; }
             table.bv-spec-tbl th, table.bv-spec-tbl td { border: 1px solid #000; padding: 3px 4px; vertical-align: top; }
             table.bv-spec-tbl th { background: #222; color: #fff; text-align: left; font-size: 7.5pt; }
@@ -273,173 +236,8 @@
             </div>
         </div>
 
-        <div id="pmPrintSheet" class="pm-template">
-            <div class="pm-form-instance">
-                <div>
-                    <table class="pm-header-tbl">
-                        <tr>
-                            <td class="brand-cell" rowspan="2">
-                                <img src="/static/logo.png" alt="Raquel Logo" onerror="this.src='{{ url_for('static', filename='logo.png') }}'">
-                            </td>
-                            <td class="title-cell" rowspan="2">PREVENTIVE COMPUTER MAINTENANCE FORM (FILE COPY)</td>
-                            <td><strong>Revision Date:</strong> August 24, 2020</td>
-                            <td><strong>Code:</strong> ITD Form 001.01</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Effective Date:</strong> August 24, 2020</td>
-                            <td><strong>Control No.:</strong></td>
-                        </tr>
-                    </table>
-
-                    <table class="pm-meta-tbl">
-                        <tr>
-                            <td style="width: 45%;"><strong>Branch/Department:</strong> <span class="pm_val_branch"></span></td>
-                            <td style="width: 30%;"><strong>Date:</strong> <span class="pm_val_date"></span></td>
-                            <td style="width: 25%;"><strong>Time Arrived:</strong></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Computer Name:</strong> <span class="pm_val_comp"></span></td>
-                            <td><strong>Fixed Asset No.:</strong> <span class="pm_val_fa"></span></td>
-                            <td><strong>Date Issued/Acquired:</strong> <span class="pm_val_issued"></span></td>
-                        </tr>
-                    </table>
-
-                    <div class="pm-grid">
-                        <div class="pm-grid-left">
-                            <table class="pm-chk-tbl">
-                                <thead>
-                                    <tr><th colspan="3" style="background:#e2e8f0; text-align:center;">Hardware Cleanup Checklist:</th></tr>
-                                    <tr><th>Component</th><th class="chk-mark">✓</th><th>To do</th></tr>
-                                </thead>
-                                <tbody>
-                                    <tr><td>Fan/ Fan intakes</td><td class="chk-mark">✓</td><td>Remove dust using compressed air</td></tr>
-                                    <tr><td>Power Supply</td><td class="chk-mark">✓</td><td>Remove dust using compressed air</td></tr>
-                                    <tr><td>Heat sink</td><td class="chk-mark">✓</td><td>Use compressed air and wipe off</td></tr>
-                                    <tr><td>RAM</td><td class="chk-mark">✓</td><td>Use compressed air and wipe off</td></tr>
-                                    <tr><td>Adapter cards</td><td class="chk-mark">✓</td><td>Use compressed air and wipe off</td></tr>
-                                    <tr><td>Motherboard</td><td class="chk-mark">✓</td><td>Use compressed air and wipe off</td></tr>
-                                    <tr><td>Internal drives</td><td class="chk-mark">✓</td><td>Use compressed air and wipe off</td></tr>
-                                    <tr><td>Peripherals (mouse, keyboard, monitor)</td><td class="chk-mark">✓</td><td>Use appropriate solution to clean off</td></tr>
-                                    <tr><td>Checked for loose parts and missing components</td><td class="chk-mark">✓</td><td>Inspect all screws, cables and other slots</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="pm-grid-right">
-                            <table class="pm-chk-tbl">
-                                <thead>
-                                    <tr><th colspan="3" style="background:#e2e8f0; text-align:center;">Software Cleanup Checklist:</th></tr>
-                                    <tr><th>Software</th><th class="chk-mark">✓</th><th>To do</th></tr>
-                                </thead>
-                                <tbody>
-                                    <tr><td>Security updates</td><td class="chk-mark">✓</td><td>Review and install</td></tr>
-                                    <tr><td>Software updates</td><td class="chk-mark">✓</td><td>Review and install</td></tr>
-                                    <tr><td>Driver updates</td><td class="chk-mark">✓</td><td>Review and install</td></tr>
-                                    <tr><td>Virus definition files</td><td class="chk-mark">✓</td><td>Update</td></tr>
-                                    <tr><td>Software cleanup</td><td class="chk-mark">✓</td><td>Scan for viruses and spyware</td></tr>
-                                    <tr><td>Junk</td><td class="chk-mark">✓</td><td>Remove unwanted or unused programs</td></tr>
-                                    <tr><td>Non-SSD Hard Drives</td><td class="chk-mark">✓</td><td>Run defragmentation</td></tr>
-                                </tbody>
-                            </table>
-                            <div class="remarks-box">
-                                <div class="remarks-title">Remarks: Computer's Performance/ Recommendation:</div>
-                                <span class="pm_val_remarks"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <table class="pm-sig-tbl">
-                    <tr>
-                        <td style="width: 50%;"><strong class="pm_val_tech"></strong><br>Technical Support Name & Signature</td>
-                        <td style="width: 50%;"><strong class="pm_val_user"></strong><br>Branch/ Dept. Personnel Name & Signature</td>
-                    </tr>
-                </table>
-            </div>
-
-            <div class="cut-line-horizontal">✂ - - - - - - - - - - - - - - - - CUT HERE - - - - - - - - - - - - - - - - ✂</div>
-
-            <div class="pm-form-instance">
-                <div>
-                    <table class="pm-header-tbl">
-                        <tr>
-                            <td class="brand-cell" rowspan="2">
-                                <img src="/static/logo.png" alt="Raquel Logo" onerror="this.src='{{ url_for('static', filename='logo.png') }}'">
-                            </td>
-                            <td class="title-cell" rowspan="2">PREVENTIVE COMPUTER MAINTENANCE FORM (BRANCH COPY)</td>
-                            <td><strong>Revision Date:</strong> August 24, 2020</td>
-                            <td><strong>Code:</strong> ITD Form 001.01</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Effective Date:</strong> August 24, 2020</td>
-                            <td><strong>Control No.:</strong></td>
-                        </tr>
-                    </table>
-
-                    <table class="pm-meta-tbl">
-                        <tr>
-                            <td style="width: 45%;"><strong>Branch/Department:</strong> <span class="pm_val_branch"></span></td>
-                            <td style="width: 30%;"><strong>Date:</strong> <span class="pm_val_date"></span></td>
-                            <td style="width: 25%;"><strong>Time Arrived:</strong></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Computer Name:</strong> <span class="pm_val_comp"></span></td>
-                            <td><strong>Fixed Asset No.:</strong> <span class="pm_val_fa"></span></td>
-                            <td><strong>Date Issued/Acquired:</strong> <span class="pm_val_issued"></span></td>
-                        </tr>
-                    </table>
-
-                    <div class="pm-grid">
-                        <div class="pm-grid-left">
-                            <table class="pm-chk-tbl">
-                                <thead>
-                                    <tr><th colspan="3" style="background:#e2e8f0; text-align:center;">Hardware Cleanup Checklist:</th></tr>
-                                    <tr><th>Component</th><th class="chk-mark">✓</th><th>To do</th></tr>
-                                </thead>
-                                <tbody>
-                                    <tr><td>Fan/ Fan intakes</td><td class="chk-mark">✓</td><td>Remove dust using compressed air</td></tr>
-                                    <tr><td>Power Supply</td><td class="chk-mark">✓</td><td>Remove dust using compressed air</td></tr>
-                                    <tr><td>Heat sink</td><td class="chk-mark">✓</td><td>Use compressed air and wipe off</td></tr>
-                                    <tr><td>RAM</td><td class="chk-mark">✓</td><td>Use compressed air and wipe off</td></tr>
-                                    <tr><td>Adapter cards</td><td class="chk-mark">✓</td><td>Use compressed air and wipe off</td></tr>
-                                    <tr><td>Motherboard</td><td class="chk-mark">✓</td><td>Use compressed air and wipe off</td></tr>
-                                    <tr><td>Internal drives</td><td class="chk-mark">✓</td><td>Use compressed air and wipe off</td></tr>
-                                    <tr><td>Peripherals (mouse, keyboard, monitor)</td><td class="chk-mark">✓</td><td>Use appropriate solution to clean off</td></tr>
-                                    <tr><td>Checked for loose parts and missing components</td><td class="chk-mark">✓</td><td>Inspect all screws, cables and other slots</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="pm-grid-right">
-                            <table class="pm-chk-tbl">
-                                <thead>
-                                    <tr><th colspan="3" style="background:#e2e8f0; text-align:center;">Software Cleanup Checklist:</th></tr>
-                                    <tr><th>Software</th><th class="chk-mark">✓</th><th>To do</th></tr>
-                                </thead>
-                                <tbody>
-                                    <tr><td>Security updates</td><td class="chk-mark">✓</td><td>Review and install</td></tr>
-                                    <tr><td>Software updates</td><td class="chk-mark">✓</td><td>Review and install</td></tr>
-                                    <tr><td>Driver updates</td><td class="chk-mark">✓</td><td>Review and install</td></tr>
-                                    <tr><td>Virus definition files</td><td class="chk-mark">✓</td><td>Update</td></tr>
-                                    <tr><td>Software cleanup</td><td class="chk-mark">✓</td><td>Scan for viruses and spyware</td></tr>
-                                    <tr><td>Junk</td><td class="chk-mark">✓</td><td>Remove unwanted or unused programs</td></tr>
-                                    <tr><td>Non-SSD Hard Drives</td><td class="chk-mark">✓</td><td>Run defragmentation</td></tr>
-                                </tbody>
-                            </table>
-                            <div class="remarks-box">
-                                <div class="remarks-title">Remarks: Computer's Performance/ Recommendation:</div>
-                                <span class="pm_val_remarks"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <table class="pm-sig-tbl">
-                    <tr>
-                        <td style="width: 50%;"><strong class="pm_val_tech"></strong><br>Technical Support Name & Signature</td>
-                        <td style="width: 50%;"><strong class="pm_val_user"></strong><br>Branch/ Dept. Personnel Name & Signature</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-
         <div id="bvPrintSheet" class="bv-template">
+            
             <div class="bv-column">
                 <div class="bv-header">BRANCH VISIT <span class="bv_val_branch"></span> (FILE COPY)</div>
                 <div class="bv-section-title">PART 1</div>
@@ -454,6 +252,7 @@
                     <li><span class="chk-box">◯</span> Check PC Files</li>
                     <li><span class="chk-box">◯</span> Check OS License (Activate if not activated)</li>
                 </ul>
+                
                 <div class="bv-section-title">PART 2 (Interview)</div>
                 <ul class="bv-list">
                     <li><span class="chk-box">◯</span> Any Concerns with Computer Hardware, Usage?</li>
@@ -461,6 +260,7 @@
                     <li><span class="chk-box">◯</span> Feedback on System Related Efficiency</li>
                     <li><span class="chk-box">◯</span> Suggestion if Any to improve IT Services Better</li>
                 </ul>
+                
                 <div class="bv-section-title">PART 4</div>
                 <ul class="bv-list">
                     <li><span class="chk-box">◯</span> List all concerns for proper reporting and action</li>
@@ -544,6 +344,7 @@
                     <li><span class="chk-box">◯</span> Check PC Files</li>
                     <li><span class="chk-box">◯</span> Check OS License (Activate if not activated)</li>
                 </ul>
+                
                 <div class="bv-section-title">PART 2 (Interview)</div>
                 <ul class="bv-list">
                     <li><span class="chk-box">◯</span> Any Concerns with Computer Hardware, Usage?</li>
@@ -551,6 +352,7 @@
                     <li><span class="chk-box">◯</span> Feedback on System Related Efficiency</li>
                     <li><span class="chk-box">◯</span> Suggestion if Any to improve IT Services Better</li>
                 </ul>
+                
                 <div class="bv-section-title">PART 4</div>
                 <ul class="bv-list">
                     <li><span class="chk-box">◯</span> List all concerns for proper reporting and action</li>
@@ -617,70 +419,7 @@
                     </tbody>
                 </table>
             </div>
-        </div>
 
-        <div id="docPrintSheet" class="doc-template">
-            <div class="doc-column">
-                <div class="bv-header" style="font-size: 13pt;">DOCUMENTATION REPORT <span class="doc_val_branch"></span> (FILE COPY)</div>
-                <table style="width: 100%; margin-bottom: 10px; font-size: 8pt; border-collapse: collapse;">
-                    <tr><td style="padding:4px; border:1px solid #000;"><strong>IT Code:</strong></td><td style="padding:4px; border:1px solid #000;"><span class="doc_val_itcode"></span></td></tr>
-                    <tr><td style="padding:4px; border:1px solid #000;"><strong>Computer Name:</strong></td><td style="padding:4px; border:1px solid #000;"><span class="doc_val_comp"></span></td></tr>
-                    <tr><td style="padding:4px; border:1px solid #000;"><strong>Date Visited:</strong></td><td style="padding:4px; border:1px solid #000;"><span class="doc_val_date"></span></td></tr>
-                    <tr><td style="padding:4px; border:1px solid #000;"><strong>Employee:</strong></td><td style="padding:4px; border:1px solid #000;"><span class="doc_val_emp"></span></td></tr>
-                </table>
-                
-                <div class="bv-section-title">HARDWARE SPECS</div>
-                <table class="bv-spec-tbl">
-                    <tr><td style="font-weight:bold;">Processor (CPU)</td><td><span class="doc_val_cpu"></span></td></tr>
-                    <tr><td style="font-weight:bold;">RAM</td><td><span class="doc_val_ram"></span></td></tr>
-                    <tr><td style="font-weight:bold;">Storage Capacity</td><td><span class="doc_val_storage"></span></td></tr>
-                    <tr><td style="font-weight:bold;">MAC Address</td><td><span class="doc_val_mac"></span></td></tr>
-                </table>
-
-                <div class="bv-section-title">FINDINGS & REMARKS</div>
-                <div class="remarks-box" style="height: 120px;">
-                    <span class="doc_val_remarks"></span>
-                </div>
-
-                <table class="pm-sig-tbl" style="margin-top:20px;">
-                    <tr>
-                        <td style="width: 50%;"><strong class="doc_val_tech"></strong><br>Technical Support Signature</td>
-                        <td style="width: 50%;"><strong class="doc_val_user"></strong><br>Branch Personnel Signature</td>
-                    </tr>
-                </table>
-            </div>
-
-            <div class="cut-line-vertical"></div>
-
-            <div class="doc-column">
-                <div class="bv-header" style="font-size: 13pt;">DOCUMENTATION REPORT <span class="doc_val_branch"></span> (USER COPY)</div>
-                <table style="width: 100%; margin-bottom: 10px; font-size: 8pt; border-collapse: collapse;">
-                    <tr><td style="padding:4px; border:1px solid #000;"><strong>IT Code:</strong></td><td style="padding:4px; border:1px solid #000;"><span class="doc_val_itcode"></span></td></tr>
-                    <tr><td style="padding:4px; border:1px solid #000;"><strong>Computer Name:</strong></td><td style="padding:4px; border:1px solid #000;"><span class="doc_val_comp"></span></td></tr>
-                    <tr><td style="padding:4px; border:1px solid #000;"><strong>Date Visited:</strong></td><td style="padding:4px; border:1px solid #000;"><span class="doc_val_date"></span></td></tr>
-                    <tr><td style="padding:4px; border:1px solid #000;"><strong>Employee:</strong></td><td style="padding:4px; border:1px solid #000;"><span class="doc_val_emp"></span></td></tr>
-                </table>
-                
-                <div class="bv-section-title">HARDWARE SPECS</div>
-                <table class="bv-spec-tbl">
-                    <tr><td style="font-weight:bold;">Processor (CPU)</td><td><span class="doc_val_cpu"></span></td></tr>
-                    <tr><td style="font-weight:bold;">RAM</td><td><span class="doc_val_ram"></span></td></tr>
-                    <tr><td style="font-weight:bold;">Storage Capacity</td><td><span class="doc_val_storage"></span></td></tr>
-                    <tr><td style="font-weight:bold;">MAC Address</td><td><span class="doc_val_mac"></span></td></tr>
-                </table>
-
-                <div class="bv-section-title">FINDINGS & REMARKS</div>
-                <div class="remarks-box" style="height: 120px;">
-                    <span class="doc_val_remarks"></span>
-                </div>
-
-                <table class="pm-sig-tbl" style="margin-top:20px;">
-                    <tr>
-                        <td style="width: 50%;"><strong class="doc_val_tech"></strong><br>Technical Support Signature</td>
-                        <td style="width: 50%;"><strong class="doc_val_user"></strong><br>Branch Personnel Signature</td>
-                    </tr>
-                </table>
-            </div>
         </div>
 
     </div>
@@ -856,38 +595,10 @@
             if (res.ok) loadInventory();
         }
 
-        // --- PRINT 1: RAQUEL PM FORM HANDLER (ISOLATED PRINT) ---
-        function printPMReport(itCode) {
-            const item = rawInventoryData.find(i => i.it_code === itCode);
-            if (!item) return;
-
-            document.getElementById('pmPrintSheet').classList.add('active-print-sheet');
-            document.getElementById('bvPrintSheet').classList.remove('active-print-sheet');
-            document.getElementById('docPrintSheet').classList.remove('active-print-sheet');
-
-            document.querySelectorAll('.pm_val_branch').forEach(el => el.innerText = item.it_business_name || '');
-            document.querySelectorAll('.pm_val_date').forEach(el => el.innerText = item.date_visited || '');
-            document.querySelectorAll('.pm_val_comp').forEach(el => el.innerText = `${item.system_unit || ''} (${item.it_code})`);
-            document.querySelectorAll('.pm_val_fa').forEach(el => el.innerText = item.fa_number || 'N/A');
-            document.querySelectorAll('.pm_val_issued').forEach(el => el.innerText = item.date_issued || '');
-            
-            const remarksText = [item.findings, item.action_taken, item.remarks].filter(Boolean).join(' | ');
-            document.querySelectorAll('.pm_val_remarks').forEach(el => el.innerText = remarksText || 'Unit checked and maintained in optimal operating condition.');
-            
-            document.querySelectorAll('.pm_val_tech').forEach(el => el.innerText = item.tech_support || '');
-            document.querySelectorAll('.pm_val_user').forEach(el => el.innerText = item.employee_name || '');
-
-            window.print();
-        }
-
-        // --- PRINT 2: BRANCH VISIT CHECKLIST HANDLER (ISOLATED PRINT) ---
+        // --- PRINT: BRANCH VISIT CHECKLIST HANDLER ---
         function printBranchVisitReport(itCode) {
             const item = rawInventoryData.find(i => i.it_code === itCode);
             if (!item) return;
-
-            document.getElementById('bvPrintSheet').classList.add('active-print-sheet');
-            document.getElementById('pmPrintSheet').classList.remove('active-print-sheet');
-            document.getElementById('docPrintSheet').classList.remove('active-print-sheet');
 
             document.querySelectorAll('.bv_val_branch').forEach(el => el.innerText = item.it_business_name ? `________________ (${item.it_business_name})` : '________________');
             document.querySelectorAll('.bv_val_serial').forEach(el => el.innerText = item.serial_hdd_all || 'N/A');
@@ -908,34 +619,6 @@
             document.querySelectorAll('.bv_val_mac').forEach(el => el.innerText = item.mac_address || 'N/A');
             
             document.querySelectorAll('.bv_val_remarks').forEach(el => el.innerText = item.remarks || item.findings || '');
-
-            window.print();
-        }
-
-        // --- PRINT 3: DOCUMENTATION REPORT HANDLER (ISOLATED PRINT) ---
-        function printDocumentation(itCode) {
-            const item = rawInventoryData.find(i => i.it_code === itCode);
-            if (!item) return;
-
-            document.getElementById('docPrintSheet').classList.add('active-print-sheet');
-            document.getElementById('pmPrintSheet').classList.remove('active-print-sheet');
-            document.getElementById('bvPrintSheet').classList.remove('active-print-sheet');
-
-            document.querySelectorAll('.doc_val_itcode').forEach(el => el.innerText = item.it_code || 'N/A');
-            document.querySelectorAll('.doc_val_branch').forEach(el => el.innerText = item.it_business_name ? `(${item.it_business_name})` : '');
-            document.querySelectorAll('.doc_val_comp').forEach(el => el.innerText = item.system_unit || 'N/A');
-            document.querySelectorAll('.doc_val_date').forEach(el => el.innerText = item.date_visited || 'N/A');
-            document.querySelectorAll('.doc_val_emp').forEach(el => el.innerText = item.employee_name || 'N/A');
-            document.querySelectorAll('.doc_val_cpu').forEach(el => el.innerText = item.processor_cpu || item.model_brand || 'N/A');
-            document.querySelectorAll('.doc_val_ram').forEach(el => el.innerText = item.ram || 'N/A');
-            document.querySelectorAll('.doc_val_storage').forEach(el => el.innerText = item.storage_capacity || item.hdd_capacity || 'N/A');
-            document.querySelectorAll('.doc_val_mac').forEach(el => el.innerText = item.mac_address || 'N/A');
-            
-            const remarksText = [item.findings, item.action_taken, item.remarks].filter(Boolean).join(' | ');
-            document.querySelectorAll('.doc_val_remarks').forEach(el => el.innerText = remarksText || 'Unit checked. Operating normally.');
-            
-            document.querySelectorAll('.doc_val_tech').forEach(el => el.innerText = item.tech_support || '');
-            document.querySelectorAll('.doc_val_user').forEach(el => el.innerText = item.employee_name || '');
 
             window.print();
         }
@@ -1035,9 +718,7 @@
                     <td style="white-space: nowrap;">
                         <button class="btn-action-edit" onclick="editRecord('${item.it_code}')">✏️ Edit</button>
                         <button class="btn-action-delete" onclick="deleteRecord('${item.it_code}')">🗑️ Delete</button>
-                        <button class="btn-action-pm" onclick="printPMReport('${item.it_code}')">📄 PM Form</button>
                         <button class="btn-action-bv" onclick="printBranchVisitReport('${item.it_code}')">📄 Branch Visit</button>
-                        <button class="btn-action-doc" onclick="printDocumentation('${item.it_code}')">📄 Documentation</button>
                     </td>
                 </tr>`;
                 tbody.innerHTML += row;
