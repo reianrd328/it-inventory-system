@@ -42,7 +42,7 @@
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 6mm; /* Tight margins */
+                margin: 6mm;
             }
 
             .no-print { display: none !important; }
@@ -69,34 +69,39 @@
                 page-break-after: avoid;
             }
 
-            /* --- PAGE 1: BRANCH VISIT CHECKLIST (SIDE-BY-SIDE) --- */
+            /* --- PAGE 1: BRANCH VISIT CHECKLIST (SCALED & CENTERED) --- */
             .bv-page {
                 flex-direction: row;
                 justify-content: space-between;
-                padding: 0;
+                align-items: stretch;
+                padding: 10px 4px 5px 4px; /* Added top padding to lower content slightly */
             }
             .bv-column {
                 width: 48.5%;
                 height: 100%;
-                font-size: 7.5pt;
-                line-height: 1.25;
+                font-size: 8.2pt; /* Increased font size */
+                line-height: 1.35; /* Spaced out lines */
                 box-sizing: border-box;
                 padding: 0 4px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
             }
             .cut-line-vertical {
                 border-left: 1px dashed #444;
                 height: 100%;
                 margin: 0 2px;
             }
-            .bv-header { font-size: 11pt; font-weight: bold; text-align: center; border-bottom: 1.5px solid #000; padding-bottom: 3px; margin-bottom: 6px; }
-            .bv-section-title { font-weight: bold; font-size: 8.5pt; margin-top: 6px; margin-bottom: 3px; }
-            .bv-list { list-style: none; padding-left: 0; margin: 0 0 6px 0; }
-            .bv-list li { margin-bottom: 2px; }
-            .chk-box { color: red; font-weight: bold; margin-right: 4px; font-size: 9pt; }
-            table.bv-spec-tbl { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 6.8pt; }
-            table.bv-spec-tbl th, table.bv-spec-tbl td { border: 1px solid #000; padding: 3px 4px; vertical-align: top; }
-            table.bv-spec-tbl th { background: #222; color: #fff; text-align: left; font-size: 7.5pt; }
-            .bv-aux-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; font-size: 6.2pt; margin-top: 3px; }
+            .bv-header { font-size: 12.5pt; font-weight: bold; text-align: center; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 8px; }
+            .bv-section-title { font-weight: bold; font-size: 9pt; margin-top: 8px; margin-bottom: 4px; }
+            .bv-list { list-style: none; padding-left: 0; margin: 0 0 8px 0; }
+            .bv-list li { margin-bottom: 3px; }
+            .chk-box { color: red; font-weight: bold; margin-right: 4px; font-size: 10pt; }
+            
+            table.bv-spec-tbl { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 7.5pt; }
+            table.bv-spec-tbl th, table.bv-spec-tbl td { border: 1px solid #000; padding: 4px 5px; vertical-align: top; }
+            table.bv-spec-tbl th { background: #222; color: #fff; text-align: left; font-size: 8pt; }
+            .bv-aux-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; font-size: 6.8pt; margin-top: 4px; }
 
             /* --- PAGE 2: PREVENTIVE MAINTENANCE FORM (TOP/BOTTOM) --- */
             .pm-page {
@@ -135,7 +140,7 @@
 <body>
     <div class="container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;" class="no-print">
-            <h2>🖥️ IT Inventory & Checking System</h2>
+            <h2>🖥️ IT Inventory & Inspection Management</h2>
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span style="font-size: 14px;">👤 <strong>{{ user.full_name or user.username }}</strong> ({{ user.role }})</span>
                 <a href="/logout" class="btn-danger">Logout 🚪</a>
@@ -285,31 +290,33 @@
             
             <div class="print-page bv-page">
                 <div class="bv-column">
-                    <div class="bv-header">BRANCH VISIT <span class="bv_val_branch"></span> (FILE COPY)</div>
-                    <div class="bv-section-title">PART 1</div>
-                    <ul class="bv-list">
-                        <li><span class="chk-box">◯</span> Check PC Application</li>
-                        <li><span class="chk-box">◯</span> Removed Unnecessary Application - Capture</li>
-                        <li><span class="chk-box">◯</span> On Run <em>"Systeminfo"</em></li>
-                        <li><span class="chk-box">◯</span> Original Install Date: ____________________</li>
-                        <li><span class="chk-box">◯</span> Check Google Drive Backup</li>
-                        <li><span class="chk-box">◯</span> Check PC backup Drive D:</li>
-                        <li><span class="chk-box">◯</span> Check Browser Bookmarks/History-Capture/Prohibited site</li>
-                        <li><span class="chk-box">◯</span> Check PC Files</li>
-                        <li><span class="chk-box">◯</span> Check OS License (Activate if not activated)</li>
-                    </ul>
-                    <div class="bv-section-title">PART 2 (Interview)</div>
-                    <ul class="bv-list">
-                        <li><span class="chk-box">◯</span> Any Concerns with Computer Hardware, Usage?</li>
-                        <li><span class="chk-box">◯</span> Feedback on Internet Speed</li>
-                        <li><span class="chk-box">◯</span> Feedback on System Related Efficiency</li>
-                        <li><span class="chk-box">◯</span> Suggestion if Any to improve IT Services Better</li>
-                    </ul>
-                    <div class="bv-section-title">PART 4</div>
-                    <ul class="bv-list">
-                        <li><span class="chk-box">◯</span> List all concerns for proper reporting and action</li>
-                        <li><span class="chk-box">◯</span> Update records in IT Google Drive</li>
-                    </ul>
+                    <div>
+                        <div class="bv-header">BRANCH VISIT <span class="bv_val_branch"></span></div>
+                        <div class="bv-section-title">PART 1</div>
+                        <ul class="bv-list">
+                            <li><span class="chk-box">◯</span> Check PC Application</li>
+                            <li><span class="chk-box">◯</span> Removed Unnecessary Application - Capture</li>
+                            <li><span class="chk-box">◯</span> On Run <em>"Systeminfo"</em></li>
+                            <li><span class="chk-box">◯</span> Original Install Date: ____________________</li>
+                            <li><span class="chk-box">◯</span> Check Google Drive Backup</li>
+                            <li><span class="chk-box">◯</span> Check PC backup Drive D:</li>
+                            <li><span class="chk-box">◯</span> Check Browser Bookmarks/History-Capture/Prohibited site</li>
+                            <li><span class="chk-box">◯</span> Check PC Files</li>
+                            <li><span class="chk-box">◯</span> Check OS License (Activate if not activated)</li>
+                        </ul>
+                        <div class="bv-section-title">PART 2 (Interview)</div>
+                        <ul class="bv-list">
+                            <li><span class="chk-box">◯</span> Any Concerns with Computer Hardware, Usage?</li>
+                            <li><span class="chk-box">◯</span> Feedback on Internet Speed</li>
+                            <li><span class="chk-box">◯</span> Feedback on System Related Efficiency</li>
+                            <li><span class="chk-box">◯</span> Suggestion if Any to improve IT Services Better</li>
+                        </ul>
+                        <div class="bv-section-title">PART 4</div>
+                        <ul class="bv-list">
+                            <li><span class="chk-box">◯</span> List all concerns for proper reporting and action</li>
+                            <li><span class="chk-box">◯</span> Update records in IT Google Drive</li>
+                        </ul>
+                    </div>
 
                     <table class="bv-spec-tbl">
                         <thead><tr><th>FA # and HDD/SSD Serial #</th><th>Computer Specification</th></tr></thead>
@@ -363,7 +370,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2" style="height: 35px; vertical-align: top;">
+                                <td colspan="2" style="height: 40px; vertical-align: top;">
                                     <strong style="color: #dc2626;">Concerns / Remarks:</strong><br>
                                     <span class="bv_val_remarks"></span>
                                 </td>
@@ -375,31 +382,33 @@
                 <div class="cut-line-vertical"></div>
 
                 <div class="bv-column">
-                    <div class="bv-header">BRANCH VISIT <span class="bv_val_branch"></span> (BRANCH COPY)</div>
-                    <div class="bv-section-title">PART 1</div>
-                    <ul class="bv-list">
-                        <li><span class="chk-box">◯</span> Check PC Application</li>
-                        <li><span class="chk-box">◯</span> Removed Unnecessary Application - Capture</li>
-                        <li><span class="chk-box">◯</span> On Run <em>"Systeminfo"</em></li>
-                        <li><span class="chk-box">◯</span> Original Install Date: ____________________</li>
-                        <li><span class="chk-box">◯</span> Check Google Drive Backup</li>
-                        <li><span class="chk-box">◯</span> Check PC backup Drive D:</li>
-                        <li><span class="chk-box">◯</span> Check Browser Bookmarks/History-Capture/Prohibited site</li>
-                        <li><span class="chk-box">◯</span> Check PC Files</li>
-                        <li><span class="chk-box">◯</span> Check OS License (Activate if not activated)</li>
-                    </ul>
-                    <div class="bv-section-title">PART 2 (Interview)</div>
-                    <ul class="bv-list">
-                        <li><span class="chk-box">◯</span> Any Concerns with Computer Hardware, Usage?</li>
-                        <li><span class="chk-box">◯</span> Feedback on Internet Speed</li>
-                        <li><span class="chk-box">◯</span> Feedback on System Related Efficiency</li>
-                        <li><span class="chk-box">◯</span> Suggestion if Any to improve IT Services Better</li>
-                    </ul>
-                    <div class="bv-section-title">PART 4</div>
-                    <ul class="bv-list">
-                        <li><span class="chk-box">◯</span> List all concerns for proper reporting and action</li>
-                        <li><span class="chk-box">◯</span> Update records in IT Google Drive</li>
-                    </ul>
+                    <div>
+                        <div class="bv-header">BRANCH VISIT <span class="bv_val_branch"></span></div>
+                        <div class="bv-section-title">PART 1</div>
+                        <ul class="bv-list">
+                            <li><span class="chk-box">◯</span> Check PC Application</li>
+                            <li><span class="chk-box">◯</span> Removed Unnecessary Application - Capture</li>
+                            <li><span class="chk-box">◯</span> On Run <em>"Systeminfo"</em></li>
+                            <li><span class="chk-box">◯</span> Original Install Date: ____________________</li>
+                            <li><span class="chk-box">◯</span> Check Google Drive Backup</li>
+                            <li><span class="chk-box">◯</span> Check PC backup Drive D:</li>
+                            <li><span class="chk-box">◯</span> Check Browser Bookmarks/History-Capture/Prohibited site</li>
+                            <li><span class="chk-box">◯</span> Check PC Files</li>
+                            <li><span class="chk-box">◯</span> Check OS License (Activate if not activated)</li>
+                        </ul>
+                        <div class="bv-section-title">PART 2 (Interview)</div>
+                        <ul class="bv-list">
+                            <li><span class="chk-box">◯</span> Any Concerns with Computer Hardware, Usage?</li>
+                            <li><span class="chk-box">◯</span> Feedback on Internet Speed</li>
+                            <li><span class="chk-box">◯</span> Feedback on System Related Efficiency</li>
+                            <li><span class="chk-box">◯</span> Suggestion if Any to improve IT Services Better</li>
+                        </ul>
+                        <div class="bv-section-title">PART 4</div>
+                        <ul class="bv-list">
+                            <li><span class="chk-box">◯</span> List all concerns for proper reporting and action</li>
+                            <li><span class="chk-box">◯</span> Update records in IT Google Drive</li>
+                        </ul>
+                    </div>
 
                     <table class="bv-spec-tbl">
                         <thead><tr><th>FA # and HDD/SSD Serial #</th><th>Computer Specification</th></tr></thead>
@@ -453,7 +462,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2" style="height: 35px; vertical-align: top;">
+                                <td colspan="2" style="height: 40px; vertical-align: top;">
                                     <strong style="color: #dc2626;">Concerns / Remarks:</strong><br>
                                     <span class="bv_val_remarks"></span>
                                 </td>
