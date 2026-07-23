@@ -39,8 +39,13 @@
         /* --- PRINT TEMPLATES HIDDEN ON SCREEN --- */
         .pm-template, .bv-template { display: none; }
 
-        /* --- PRINT STYLES --- */
+        /* --- PRINT STYLES (COMPACT 1-PAGE FIT) --- */
         @media print {
+            @page {
+                size: A4 portrait;
+                margin: 5mm; /* Tight margins to force 1 page */
+            }
+
             .no-print { display: none !important; }
             body { background: white; margin: 0; padding: 0; color: #000; font-family: Arial, sans-serif; }
             
@@ -49,49 +54,49 @@
             .pm-form-instance {
                 height: 48vh;
                 box-sizing: border-box;
-                padding: 5px;
+                padding: 4px;
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
             }
-            .cut-line { text-align: center; font-size: 8pt; border-top: 1px dashed #666; margin: 4px 0; padding-top: 2px; color: #555; }
-            table.pm-header-tbl, table.pm-meta-tbl { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
-            table.pm-header-tbl td, table.pm-meta-tbl td { border: 1px solid #000; padding: 2px 4px; font-size: 7.5pt; }
-            .brand-cell { width: 25%; text-align: center; vertical-align: middle; padding: 2px; }
-            .brand-cell img { max-width: 100%; max-height: 38px; display: block; margin: 0 auto; }
-            .title-cell { font-weight: bold; font-size: 9.5pt; text-align: center; text-transform: uppercase; background: #f5f5f5; }
+            .cut-line { text-align: center; font-size: 7.5pt; border-top: 1px dashed #666; margin: 2px 0; padding-top: 1px; color: #555; }
+            table.pm-header-tbl, table.pm-meta-tbl { width: 100%; border-collapse: collapse; margin-bottom: 3px; }
+            table.pm-header-tbl td, table.pm-meta-tbl td { border: 1px solid #000; padding: 1.5px 3px; font-size: 7pt; }
+            .brand-cell { width: 25%; text-align: center; vertical-align: middle; padding: 1px; }
+            .brand-cell img { max-width: 100%; max-height: 32px; display: block; margin: 0 auto; }
+            .title-cell { font-weight: bold; font-size: 8.5pt; text-align: center; text-transform: uppercase; background: #f5f5f5; }
 
-            .pm-grid { display: flex; gap: 5px; margin-bottom: 4px; }
+            .pm-grid { display: flex; gap: 4px; margin-bottom: 3px; }
             .pm-grid-left { width: 52%; }
             .pm-grid-right { width: 48%; display: flex; flex-direction: column; justify-content: space-between; }
-            table.pm-chk-tbl { width: 100%; border-collapse: collapse; font-size: 6.8pt; }
-            table.pm-chk-tbl th, table.pm-chk-tbl td { border: 1px solid #000; padding: 1.5px 3px; }
+            table.pm-chk-tbl { width: 100%; border-collapse: collapse; font-size: 6.2pt; }
+            table.pm-chk-tbl th, table.pm-chk-tbl td { border: 1px solid #000; padding: 1px 2px; }
             table.pm-chk-tbl th { background: #e2e8f0; font-weight: bold; text-align: left; }
-            .chk-mark { text-align: center; width: 15px; font-weight: bold; }
+            .chk-mark { text-align: center; width: 12px; font-weight: bold; }
 
-            .remarks-box { border: 1px solid #000; padding: 3px; font-size: 7pt; height: 60px; }
-            .remarks-title { font-weight: bold; color: #8b0000; margin-bottom: 2px; }
-            table.pm-sig-tbl { width: 100%; border-collapse: collapse; margin-top: 4px; }
-            table.pm-sig-tbl td { border: 1px solid #000; height: 32px; text-align: center; vertical-align: bottom; font-size: 6.5pt; padding-bottom: 2px; }
+            .remarks-box { border: 1px solid #000; padding: 2px; font-size: 6.5pt; height: 50px; }
+            .remarks-title { font-weight: bold; color: #8b0000; margin-bottom: 1px; }
+            table.pm-sig-tbl { width: 100%; border-collapse: collapse; margin-top: 3px; }
+            table.pm-sig-tbl td { border: 1px solid #000; height: 28px; text-align: center; vertical-align: bottom; font-size: 6pt; padding-bottom: 1px; }
 
-            /* 2. BRANCH VISIT CHECKLIST PRINT STYLES */
+            /* 2. BRANCH VISIT CHECKLIST PRINT STYLES (COMPACT 1-PAGE LAYOUT) */
             .bv-template { display: block !important; width: 100%; }
-            .bv-grid-container { display: flex; justify-content: space-between; gap: 15px; }
-            .bv-column { width: 48%; font-size: 7pt; }
-            .bv-header { font-size: 10pt; font-weight: bold; text-align: center; border-bottom: 2px solid #000; padding-bottom: 2px; margin-bottom: 4px; }
-            .bv-section-title { font-weight: bold; font-size: 8pt; margin-top: 4px; margin-bottom: 2px; }
-            .bv-list { list-style: none; padding-left: 0; margin: 0 0 4px 0; }
-            .bv-list li { margin-bottom: 1px; }
-            .chk-box { color: red; font-weight: bold; margin-right: 3px; }
-            table.bv-spec-tbl { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 6.5pt; }
-            table.bv-spec-tbl th, table.bv-spec-tbl td { border: 1px solid #000; padding: 2px 3px; }
-            table.bv-spec-tbl th { background: #333; color: #fff; text-align: left; }
+            .bv-grid-container { display: flex; justify-content: space-between; gap: 10px; }
+            .bv-column { width: 49%; font-size: 6.5pt; line-height: 1.15; }
+            .bv-header { font-size: 9.5pt; font-weight: bold; text-align: center; border-bottom: 1.5px solid #000; padding-bottom: 1px; margin-bottom: 3px; }
+            .bv-section-title { font-weight: bold; font-size: 7.5pt; margin-top: 3px; margin-bottom: 1px; }
+            .bv-list { list-style: none; padding-left: 0; margin: 0 0 3px 0; }
+            .bv-list li { margin-bottom: 0.5px; }
+            .chk-box { color: red; font-weight: bold; margin-right: 2px; }
+            
+            table.bv-spec-tbl { width: 100%; border-collapse: collapse; margin-top: 3px; font-size: 6pt; }
+            table.bv-spec-tbl th, table.bv-spec-tbl td { border: 1px solid #000; padding: 1.5px 2px; }
+            table.bv-spec-tbl th { background: #222; color: #fff; text-align: left; font-size: 6.2pt; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Top Navigation Header -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;" class="no-print">
             <h2>🖥️ IT Inventory & Checking System</h2>
             <div style="display: flex; align-items: center; gap: 10px;">
@@ -100,7 +105,6 @@
             </div>
         </div>
 
-        <!-- SUPER ADMIN ONLY: User Account Management Panel -->
         {% if user.role == 'Super Admin' %}
         <div class="card admin-card no-print">
             <h3 style="margin-top:0; color: #0369a1;">👑 User Account Management (Super Admin)</h3>
@@ -122,7 +126,6 @@
         </div>
         {% endif %}
 
-        <!-- EXPORT TO EXCEL CONTROL CARD -->
         <div class="card export-card no-print">
             <h3 style="margin-top: 0; color: #166534;">📊 Export Inventory to Excel</h3>
             <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
@@ -151,12 +154,10 @@
             </div>
         </div>
 
-        <!-- Entry Form for IT Inventory & Peripherals -->
         <div class="card no-print" id="formCard">
             <h3 id="formTitle">Record Unit / Maintenance Report</h3>
             <form id="inventoryForm">
                 <div class="form-grid">
-                    <!-- SECTION 1: BASIC ASSET INFO -->
                     <div class="form-section-header">📌 Basic Asset Information</div>
                     <div class="form-group"><label>IT Business Name / Branch</label><input type="text" id="it_business_name"></div>
                     <div class="form-group"><label>System Unit / Computer Name</label><input type="text" id="system_unit" placeholder="Ex: Desktop / Laptop"></div>
@@ -182,7 +183,6 @@
                         <input type="date" id="depreciation_date" class="readonly-input" readonly>
                     </div>
 
-                    <!-- SECTION 2: HARDWARE SPECIFICATIONS -->
                     <div class="form-section-header">💻 Computer Specifications</div>
                     <div class="form-group"><label>Processor (CPU)</label><input type="text" id="processor_cpu" placeholder="Ex: Intel Core i5-11400"></div>
                     <div class="form-group"><label>Model / Brand</label><input type="text" id="model_brand"></div>
@@ -192,7 +192,6 @@
                     <div class="form-group"><label>Chassis / Unit Serial Number</label><input type="text" id="serial_hdd_all"></div>
                     <div class="form-group"><label>OS Environment & Version</label><input type="text" id="os_version" placeholder="Ex: Windows 11 Pro"></div>
 
-                    <!-- SECTION 3: PERIPHERALS & NETWORK FA NUMBERS -->
                     <div class="form-section-header">🔌 Peripherals & Network FA Numbers</div>
                     <div class="form-group"><label>System Unit FA #</label><input type="text" id="fa_number"></div>
                     <div class="form-group"><label>Monitor FA #</label><input type="text" id="monitor_fa"></div>
@@ -206,7 +205,6 @@
                     <div class="form-group"><label>Primary NIC MAC Address</label><input type="text" id="mac_address" placeholder="00-1A-2B-3C-4D-5E"></div>
                     <div class="form-group"><label>Tech Support</label><input type="text" id="tech_support" value="{{ user.full_name or user.username }}"></div>
                     
-                    <!-- SECTION 4: DIAGNOSTICS & REMARKS -->
                     <div class="form-section-header">📝 Diagnostic Remarks & Findings</div>
                     <div class="form-group full-width"><label>Description / Specs</label><textarea id="description_specs" rows="2"></textarea></div>
                     <div class="form-group full-width"><label>Findings</label><textarea id="findings" rows="2"></textarea></div>
@@ -220,7 +218,6 @@
             </form>
         </div>
 
-        <!-- Inventory Summary Table -->
         <div class="card no-print">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h3>Inventory Records</h3>
@@ -242,15 +239,12 @@
                         </tr>
                     </thead>
                     <tbody id="inventoryTable">
-                        <!-- Loaded dynamically via JS -->
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- PRINTABLE 1: RAQUEL PAWNSHOP PM FORM TEMPLATE (2 COPIES ON ONE PAGE) -->
         <div id="pmPrintSheet" class="pm-template">
-            <!-- COPY 1: TOP HALF -->
             <div class="pm-form-instance">
                 <div>
                     <table class="pm-header-tbl">
@@ -337,7 +331,6 @@
 
             <div class="cut-line">✂ - - - - - - - - - - - - - - - - CUT HERE (FILE COPY / BRANCH COPY) - - - - - - - - - - - - - - - - ✂</div>
 
-            <!-- COPY 2: BOTTOM HALF -->
             <div class="pm-form-instance">
                 <div>
                     <table class="pm-header-tbl">
@@ -423,10 +416,8 @@
             </div>
         </div>
 
-        <!-- PRINTABLE 2: BRANCH VISIT CHECKLIST TEMPLATE (2-COLUMN SIDE-BY-SIDE) -->
         <div id="bvPrintSheet" class="bv-template">
             <div class="bv-grid-container">
-                <!-- COPY 1: LEFT COLUMN -->
                 <div class="bv-column">
                     <div class="bv-header">BRANCH VISIT <span class="bv_val_branch"></span></div>
                     
@@ -498,7 +489,7 @@
                             <tr>
                                 <td colspan="2">
                                     <strong style="color: #16a34a;">Auxiliary App:</strong><br>
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; font-size: 6.5pt; margin-top: 2px;">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1px; font-size: 5.8pt; margin-top: 1px;">
                                         <span>☐ BPI Banko</span><span>☐ CTI Loading</span>
                                         <span>☐ Sendah – Paymaya</span><span>☐ Peraquel</span>
                                         <span>☐ Bayad Center</span><span>☐ Biyahe ko</span>
@@ -511,7 +502,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2" style="height: 35px; vertical-align: top;">
+                                <td colspan="2" style="height: 25px; vertical-align: top;">
                                     <strong style="color: #dc2626;">Concerns / Remarks:</strong><br>
                                     <span class="bv_val_remarks"></span>
                                 </td>
@@ -520,7 +511,6 @@
                     </table>
                 </div>
 
-                <!-- COPY 2: RIGHT COLUMN (DUPLICATE) -->
                 <div class="bv-column">
                     <div class="bv-header">BRANCH VISIT <span class="bv_val_branch"></span></div>
                     
@@ -592,7 +582,7 @@
                             <tr>
                                 <td colspan="2">
                                     <strong style="color: #16a34a;">Auxiliary App:</strong><br>
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; font-size: 6.5pt; margin-top: 2px;">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1px; font-size: 5.8pt; margin-top: 1px;">
                                         <span>☐ BPI Banko</span><span>☐ CTI Loading</span>
                                         <span>☐ Sendah – Paymaya</span><span>☐ Peraquel</span>
                                         <span>☐ Bayad Center</span><span>☐ Biyahe ko</span>
@@ -605,7 +595,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2" style="height: 35px; vertical-align: top;">
+                                <td colspan="2" style="height: 25px; vertical-align: top;">
                                     <strong style="color: #dc2626;">Concerns / Remarks:</strong><br>
                                     <span class="bv_val_remarks"></span>
                                 </td>
