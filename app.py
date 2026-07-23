@@ -8,7 +8,6 @@ from io import BytesIO
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "super_secret_it_inventory_key_2026")
 
-# --- DATABASE CONNECTION ---
 def get_db_connection():
     return pymysql.connect(
         host=os.environ.get("TIDB_HOST", "localhost"),
@@ -32,7 +31,6 @@ def check_admin_exists():
     finally:
         conn.close()
 
-# --- PAGE ROUTE PROTECTIONS ---
 @app.route('/')
 def index():
     if not check_admin_exists():
@@ -60,7 +58,6 @@ def logout():
     session.clear()
     return redirect('/login')
 
-# --- INITIAL SUPER ADMIN SETUP ROUTE ---
 @app.route('/api/setup-super-admin', methods=['POST'])
 def setup_super_admin():
     if check_admin_exists():
@@ -89,7 +86,6 @@ def setup_super_admin():
     finally:
         conn.close()
 
-# --- LOGIN AUTHENTICATION ROUTE ---
 @app.route('/api/login/password', methods=['POST'])
 def login_password():
     data = request.json
@@ -118,7 +114,6 @@ def login_password():
     finally:
         conn.close()
 
-# --- USER MANAGEMENT ENDPOINTS ---
 @app.route('/api/users', methods=['GET'])
 def get_users():
     if 'user_id' not in session or session.get('user', {}).get('role') != 'Super Admin':
@@ -183,7 +178,6 @@ def toggle_user_status():
     finally:
         conn.close()
 
-# --- INVENTORY API ---
 @app.route('/api/inventory', methods=['GET', 'POST'])
 def handle_inventory():
     if 'user_id' not in session:
@@ -198,16 +192,16 @@ def handle_inventory():
                 INSERT INTO it_inventory (
                     it_business_name, it_department, system_unit, issued_company_owned, employee_name,
                     date_visited, it_code, model_brand, ram, storage_capacity,
-                    serial_hdd_all, description_specs, date_issued, unit_age,
+                    serial_hdd_all, description_specs, date_issued, original_install_date, unit_age,
                     depreciation_date, findings, fa_number, mac_address,
                     action_taken, remarks, tech_support,
                     monitor_fa, keyboard_fa, mouse_fa, printer_fa, router_fa,
                     webcam_fa, ups_fa, speedtest_profile, processor_cpu, os_version, hdd_capacity
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ON DUPLICATE KEY UPDATE
                     it_business_name=%s, it_department=%s, system_unit=%s, issued_company_owned=%s, employee_name=%s,
                     date_visited=%s, model_brand=%s, ram=%s, storage_capacity=%s,
-                    serial_hdd_all=%s, description_specs=%s, date_issued=%s, unit_age=%s,
+                    serial_hdd_all=%s, description_specs=%s, date_issued=%s, original_install_date=%s, unit_age=%s,
                     depreciation_date=%s, findings=%s, fa_number=%s, mac_address=%s,
                     action_taken=%s, remarks=%s, tech_support=%s,
                     monitor_fa=%s, keyboard_fa=%s, mouse_fa=%s, printer_fa=%s, router_fa=%s,
@@ -217,7 +211,7 @@ def handle_inventory():
                 vals = (
                     data.get('it_business_name'), data.get('it_department'), data.get('system_unit'), data.get('issued_company_owned'), data.get('employee_name'),
                     parse_date(data.get('date_visited')), data.get('it_code'), data.get('model_brand'), data.get('ram'), data.get('storage_capacity'),
-                    data.get('serial_hdd_all'), data.get('description_specs'), parse_date(data.get('date_issued')), data.get('unit_age'),
+                    data.get('serial_hdd_all'), data.get('description_specs'), parse_date(data.get('date_issued')), parse_date(data.get('original_install_date')), data.get('unit_age'),
                     parse_date(data.get('depreciation_date')), data.get('findings'), data.get('fa_number'), data.get('mac_address'),
                     data.get('action_taken'), data.get('remarks'), data.get('tech_support'),
                     data.get('monitor_fa'), data.get('keyboard_fa'), data.get('mouse_fa'), data.get('printer_fa'), data.get('router_fa'),
@@ -225,7 +219,7 @@ def handle_inventory():
                     
                     data.get('it_business_name'), data.get('it_department'), data.get('system_unit'), data.get('issued_company_owned'), data.get('employee_name'),
                     parse_date(data.get('date_visited')), data.get('model_brand'), data.get('ram'), data.get('storage_capacity'),
-                    data.get('serial_hdd_all'), data.get('description_specs'), parse_date(data.get('date_issued')), data.get('unit_age'),
+                    data.get('serial_hdd_all'), data.get('description_specs'), parse_date(data.get('date_issued')), parse_date(data.get('original_install_date')), data.get('unit_age'),
                     parse_date(data.get('depreciation_date')), data.get('findings'), data.get('fa_number'), data.get('mac_address'),
                     data.get('action_taken'), data.get('remarks'), data.get('tech_support'),
                     data.get('monitor_fa'), data.get('keyboard_fa'), data.get('mouse_fa'), data.get('printer_fa'), data.get('router_fa'),
@@ -239,13 +233,12 @@ def handle_inventory():
                 cursor.execute("SELECT * FROM it_inventory ORDER BY updated_at DESC")
                 records = cursor.fetchall()
                 for r in records:
-                    for df in ['date_visited', 'date_issued', 'depreciation_date']:
+                    for df in ['date_visited', 'date_issued', 'original_install_date', 'depreciation_date']:
                         if r[df]: r[df] = str(r[df])
             return jsonify(records)
     finally:
         conn.close()
 
-# --- DELETE INVENTORY ITEM ENDPOINT ---
 @app.route('/api/inventory/delete', methods=['POST'])
 def delete_inventory():
     if 'user_id' not in session:
@@ -266,7 +259,6 @@ def delete_inventory():
     finally:
         conn.close()
 
-# --- EXPORT TO EXCEL ROUTE (STRICT 20 COLUMNS: BUSINESS NAME, NO DEPT COLUMN) ---
 @app.route('/api/inventory/export', methods=['GET'])
 def export_excel():
     if 'user_id' not in session:
@@ -297,7 +289,6 @@ def export_excel():
         ws = wb.active
         ws.title = "IT Inventory"
 
-        # Exact 20 columns requested (Business Name included, Department excluded)
         headers = [
             "Business Name", "System Unit", "Issued/Company Owned", "Employee's Name",
             "Date Visited", "IT Code", "Model / Brand", "RAM", "Storage Capacity",
