@@ -266,7 +266,7 @@ def delete_inventory():
     finally:
         conn.close()
 
-# --- EXPORT TO EXCEL ROUTE (UPDATED HEADERS WITH BUSINESS NAME & DEPARTMENT) ---
+# --- EXPORT TO EXCEL ROUTE (STRICT 20 COLUMNS: BUSINESS NAME, NO DEPT COLUMN) ---
 @app.route('/api/inventory/export', methods=['GET'])
 def export_excel():
     if 'user_id' not in session:
@@ -297,8 +297,9 @@ def export_excel():
         ws = wb.active
         ws.title = "IT Inventory"
 
+        # Exact 20 columns requested (Business Name included, Department excluded)
         headers = [
-            "Business Name", "Department / Branch", "System Unit", "Issued/Company Owned", "Employee's Name",
+            "Business Name", "System Unit", "Issued/Company Owned", "Employee's Name",
             "Date Visited", "IT Code", "Model / Brand", "RAM", "Storage Capacity",
             "Serial (HDD&ALL UNIT)", "Description/ Specs", "Date Issued", "Unit Age",
             "Depreciation date", "Findings", "FA #", "MAC Address", "Action Taken",
@@ -315,7 +316,6 @@ def export_excel():
             def fmt_d(d): return str(d) if d else ""
             row = [
                 r.get('it_business_name', ''),
-                r.get('it_department', ''),
                 r.get('system_unit', ''),
                 r.get('issued_company_owned', ''),
                 r.get('employee_name', ''),
