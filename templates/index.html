@@ -35,6 +35,12 @@
         th, td { border: 1px solid #ddd; padding: 8px 10px; text-align: left; }
         th { background-color: #f1f4f8; font-weight: bold; }
         
+        /* User Status Badges & Buttons */
+        .badge-active { background: #10b981; color: white; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+        .badge-disabled { background: #ef4444; color: white; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+        .btn-disable { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; margin: 0; }
+        .btn-enable { background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; margin: 0; }
+
         /* --- PRINT TEMPLATE HIDDEN BY DEFAULT --- */
         .combined-print-template { display: none !important; }
 
@@ -69,39 +75,39 @@
                 page-break-after: avoid;
             }
 
-            /* --- PAGE 1: BRANCH VISIT CHECKLIST (SCALED & CENTERED) --- */
+            /* --- PAGE 1: BRANCH VISIT CHECKLIST (ADJUSTED & CENTERED) --- */
             .bv-page {
                 flex-direction: row;
                 justify-content: space-between;
-                align-items: stretch;
-                padding: 10px 4px 5px 4px; /* Added top padding to lower content slightly */
+                align-items: center; /* Center vertically on Page 1 */
+                padding: 15px 4px 5px 4px; /* Lowered from top */
             }
             .bv-column {
                 width: 48.5%;
-                height: 100%;
-                font-size: 8.2pt; /* Increased font size */
-                line-height: 1.35; /* Spaced out lines */
+                height: 96%;
+                font-size: 8.5pt; /* Scaled up font size */
+                line-height: 1.4; /* Expanded line height */
                 box-sizing: border-box;
-                padding: 0 4px;
+                padding: 0 5px;
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
             }
             .cut-line-vertical {
                 border-left: 1px dashed #444;
-                height: 100%;
+                height: 96%;
                 margin: 0 2px;
             }
-            .bv-header { font-size: 12.5pt; font-weight: bold; text-align: center; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 8px; }
-            .bv-section-title { font-weight: bold; font-size: 9pt; margin-top: 8px; margin-bottom: 4px; }
-            .bv-list { list-style: none; padding-left: 0; margin: 0 0 8px 0; }
-            .bv-list li { margin-bottom: 3px; }
-            .chk-box { color: red; font-weight: bold; margin-right: 4px; font-size: 10pt; }
+            .bv-header { font-size: 13pt; font-weight: bold; text-align: center; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 10px; }
+            .bv-section-title { font-weight: bold; font-size: 9.5pt; margin-top: 10px; margin-bottom: 5px; }
+            .bv-list { list-style: none; padding-left: 0; margin: 0 0 10px 0; }
+            .bv-list li { margin-bottom: 4px; }
+            .chk-box { color: red; font-weight: bold; margin-right: 5px; font-size: 11pt; }
             
-            table.bv-spec-tbl { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 7.5pt; }
-            table.bv-spec-tbl th, table.bv-spec-tbl td { border: 1px solid #000; padding: 4px 5px; vertical-align: top; }
-            table.bv-spec-tbl th { background: #222; color: #fff; text-align: left; font-size: 8pt; }
-            .bv-aux-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; font-size: 6.8pt; margin-top: 4px; }
+            table.bv-spec-tbl { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 8pt; }
+            table.bv-spec-tbl th, table.bv-spec-tbl td { border: 1px solid #000; padding: 5px 6px; vertical-align: top; }
+            table.bv-spec-tbl th { background: #222; color: #fff; text-align: left; font-size: 8.5pt; }
+            .bv-aux-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; font-size: 7.2pt; margin-top: 5px; }
 
             /* --- PAGE 2: PREVENTIVE MAINTENANCE FORM (TOP/BOTTOM) --- */
             .pm-page {
@@ -165,6 +171,24 @@
                 </div>
                 <button type="submit" style="background: #0284c7;">➕ Create New Account</button>
             </form>
+
+            <h4 style="margin-top: 20px; margin-bottom: 5px; color: #0369a1;">Registered System Users & Credential Status</h4>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Full Name</th>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Account Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userCredentialsTable">
+                        </tbody>
+                </table>
+            </div>
         </div>
         {% endif %}
 
@@ -647,8 +671,55 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             loadInventory();
+            loadUsers();
             initIdleTimer();
         });
+
+        // --- FETCH SYSTEM USERS (SUPER ADMIN ONLY) ---
+        async function loadUsers() {
+            const res = await fetch('/api/users');
+            if (!res.ok) return;
+            const users = await res.json();
+            const tbody = document.getElementById('userCredentialsTable');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            users.forEach(u => {
+                const isAct = u.is_active === 1;
+                const statusBadge = isAct 
+                    ? '<span class="badge-active">Active</span>' 
+                    : '<span class="badge-disabled">Disabled</span>';
+                
+                const toggleBtn = isAct
+                    ? `<button class="btn-disable" onclick="toggleUserStatus(${u.id}, 0)">🔒 Disable</button>`
+                    : `<button class="btn-enable" onclick="toggleUserStatus(${u.id}, 1)">🔓 Enable</button>`;
+
+                const row = `<tr>
+                    <td>${u.id}</td>
+                    <td><strong>${u.full_name || ''}</strong></td>
+                    <td>${u.username}</td>
+                    <td>${u.role}</td>
+                    <td>${statusBadge}</td>
+                    <td>${toggleBtn}</td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        async function toggleUserStatus(userId, newStatus) {
+            const actionText = newStatus === 1 ? 'enable' : 'disable';
+            if (!confirm(`Are you sure you want to ${actionText} this user's credentials?`)) return;
+
+            const res = await fetch('/api/users/toggle-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: userId, is_active: newStatus })
+            });
+
+            const data = await res.json();
+            alert(data.message);
+            if (res.ok) loadUsers();
+        }
 
         // --- AUTOMATIC DATE CALCULATIONS ---
         function calculateDates() {
@@ -818,7 +889,6 @@
             const item = rawInventoryData.find(i => i.it_code === itCode);
             if (!item) return;
 
-            // Make the combined template active for printing
             document.getElementById('combinedPrintSheet').classList.add('active-print-sheet');
 
             // 1. Populate Branch Visit Data (Page 1)
@@ -851,10 +921,8 @@
             document.querySelectorAll('.pm_val_tech').forEach(el => el.innerText = item.tech_support || '');
             document.querySelectorAll('.pm_val_user').forEach(el => el.innerText = item.employee_name || '');
 
-            // Trigger the print dialogue
             window.print();
 
-            // Hide after printing to return to normal dashboard view
             document.getElementById('combinedPrintSheet').classList.remove('active-print-sheet');
         }
 
@@ -875,7 +943,10 @@
                 });
                 const data = await res.json();
                 alert(data.message);
-                if (res.ok) createUserForm.reset();
+                if (res.ok) {
+                    createUserForm.reset();
+                    loadUsers();
+                }
             });
         }
 
