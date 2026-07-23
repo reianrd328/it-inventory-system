@@ -54,17 +54,12 @@
             .no-print { display: none !important; }
             body { background: white; margin: 0; padding: 0; color: #000; font-family: Arial, sans-serif; }
             
-            /* SHOW ONLY THE ACTIVE PRINT SHEET */
-            .active-print-sheet {
-                display: block !important;
-                width: 100%;
-            }
+            .active-print-sheet { display: block !important; width: 100%; }
 
-            /* FORCE PAGE BREAK BETWEEN FORMS AND LOCK HEIGHT */
             .print-page {
                 display: flex;
                 width: 100%;
-                height: 98vh; /* Locks each form exactly to 1 page */
+                height: 98vh;
                 box-sizing: border-box;
                 overflow: hidden;
                 break-after: page;
@@ -75,18 +70,18 @@
                 page-break-after: avoid;
             }
 
-            /* --- PAGE 1: BRANCH VISIT CHECKLIST (ADJUSTED & CENTERED) --- */
+            /* --- PAGE 1: BRANCH VISIT CHECKLIST --- */
             .bv-page {
                 flex-direction: row;
                 justify-content: space-between;
-                align-items: center; /* Center vertically on Page 1 */
-                padding: 15px 4px 5px 4px; /* Lowered from top */
+                align-items: center;
+                padding: 15px 4px 5px 4px;
             }
             .bv-column {
                 width: 48.5%;
                 height: 96%;
-                font-size: 8.5pt; /* Scaled up font size */
-                line-height: 1.4; /* Expanded line height */
+                font-size: 8.2pt;
+                line-height: 1.35;
                 box-sizing: border-box;
                 padding: 0 5px;
                 display: flex;
@@ -98,23 +93,19 @@
                 height: 96%;
                 margin: 0 2px;
             }
-            .bv-header { font-size: 13pt; font-weight: bold; text-align: center; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 10px; }
-            .bv-section-title { font-weight: bold; font-size: 9.5pt; margin-top: 10px; margin-bottom: 5px; }
-            .bv-list { list-style: none; padding-left: 0; margin: 0 0 10px 0; }
-            .bv-list li { margin-bottom: 4px; }
-            .chk-box { color: red; font-weight: bold; margin-right: 5px; font-size: 11pt; }
+            .bv-header { font-size: 12.5pt; font-weight: bold; text-align: center; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 8px; }
+            .bv-section-title { font-weight: bold; font-size: 9pt; margin-top: 8px; margin-bottom: 4px; }
+            .bv-list { list-style: none; padding-left: 0; margin: 0 0 8px 0; }
+            .bv-list li { margin-bottom: 3px; }
+            .chk-box { color: red; font-weight: bold; margin-right: 4px; font-size: 10pt; }
             
-            table.bv-spec-tbl { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 8pt; }
-            table.bv-spec-tbl th, table.bv-spec-tbl td { border: 1px solid #000; padding: 5px 6px; vertical-align: top; }
-            table.bv-spec-tbl th { background: #222; color: #fff; text-align: left; font-size: 8.5pt; }
-            .bv-aux-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; font-size: 7.2pt; margin-top: 5px; }
+            table.bv-spec-tbl { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 7.5pt; }
+            table.bv-spec-tbl th, table.bv-spec-tbl td { border: 1px solid #000; padding: 4px 5px; vertical-align: top; }
+            table.bv-spec-tbl th { background: #222; color: #fff; text-align: left; font-size: 8pt; }
+            .bv-aux-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; font-size: 6.8pt; margin-top: 4px; }
 
-            /* --- PAGE 2: PREVENTIVE MAINTENANCE FORM (TOP/BOTTOM) --- */
-            .pm-page {
-                flex-direction: column;
-                justify-content: space-between;
-                padding: 0;
-            }
+            /* --- PAGE 2: PREVENTIVE MAINTENANCE FORM --- */
+            .pm-page { flex-direction: column; justify-content: space-between; padding: 0; }
             .pm-form-instance {
                 height: 48.5%;
                 box-sizing: border-box;
@@ -146,7 +137,7 @@
 <body>
     <div class="container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;" class="no-print">
-            <h2>🖥️ IT Inventory & Inspection Management</h2>
+            <h2>🖥️ IT Inventory & Checking System</h2>
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span style="font-size: 14px;">👤 <strong>{{ user.full_name or user.username }}</strong> ({{ user.role }})</span>
                 <a href="/logout" class="btn-danger">Logout 🚪</a>
@@ -225,7 +216,8 @@
             <form id="inventoryForm">
                 <div class="form-grid">
                     <div class="form-section-header">📌 Basic Asset Information</div>
-                    <div class="form-group"><label>IT Business Name / Branch</label><input type="text" id="it_business_name"></div>
+                    <div class="form-group"><label>IT Business Name</label><input type="text" id="it_business_name" placeholder="Ex: Company Name"></div>
+                    <div class="form-group"><label>Department / Branch</label><input type="text" id="it_department" placeholder="Ex: Accounting / Main Branch"></div>
                     <div class="form-group"><label>System Unit / Computer Name</label><input type="text" id="system_unit" placeholder="Ex: Desktop / Laptop"></div>
                     <div class="form-group">
                         <label>Issued / Company Owned</label>
@@ -294,7 +286,7 @@
                     <thead>
                         <tr>
                             <th>IT Code</th>
-                            <th>Business / Employee</th>
+                            <th>Business & Dept</th>
                             <th>Unit / Brand</th>
                             <th>RAM / Storage</th>
                             <th>FA # / MAC Address</th>
@@ -592,8 +584,8 @@
                                 <td><strong>Code:</strong> ITD Form 001.01</td>
                             </tr>
                             <tr>
-                                <td><strong>Effective Date:</strong> August 24, 2020</td>
-                                <td><strong>Control No.:</strong></td>
+                                <td style="font-size: 7.5pt;"><strong>Effective Date:</strong> August 24, 2020</td>
+                                <td style="font-size: 7.5pt;"><strong>Control No.:</strong></td>
                             </tr>
                         </table>
 
@@ -675,7 +667,6 @@
             initIdleTimer();
         });
 
-        // --- FETCH SYSTEM USERS (SUPER ADMIN ONLY) ---
         async function loadUsers() {
             const res = await fetch('/api/users');
             if (!res.ok) return;
@@ -721,7 +712,6 @@
             if (res.ok) loadUsers();
         }
 
-        // --- AUTOMATIC DATE CALCULATIONS ---
         function calculateDates() {
             const visitedVal = document.getElementById('date_visited').value;
             const issuedVal = document.getElementById('date_issued').value;
@@ -766,7 +756,6 @@
             }
         }
 
-        // --- 1-MINUTE IDLE AUTO-LOGOUT SCRIPT ---
         let idleTimer;
         const IDLE_LIMIT = 60 * 1000;
 
@@ -790,7 +779,6 @@
             window.addEventListener('scroll', resetIdleTimer, true);
         }
 
-        // --- EXPORT TO EXCEL TOGGLE & DOWNLOAD ---
         function toggleExportInputs() {
             const mode = document.getElementById('export_mode').value;
             document.getElementById('group_export_date').style.display = (mode === 'day') ? 'flex' : 'none';
@@ -814,12 +802,12 @@
             window.location.href = url;
         }
 
-        // --- EDIT RECORD HANDLER ---
         function editRecord(itCode) {
             const item = rawInventoryData.find(i => i.it_code === itCode);
             if (!item) return;
 
             document.getElementById('it_business_name').value = item.it_business_name || '';
+            document.getElementById('it_department').value = item.it_department || '';
             document.getElementById('system_unit').value = item.system_unit || '';
             document.getElementById('issued_company_owned').value = item.issued_company_owned || 'Company Owned';
             document.getElementById('employee_name').value = item.employee_name || '';
@@ -838,7 +826,6 @@
             document.getElementById('action_taken').value = item.action_taken || '';
             document.getElementById('remarks').value = item.remarks || '';
 
-            // Specs & Peripherals FA Numbers
             document.getElementById('processor_cpu').value = item.processor_cpu || '';
             document.getElementById('hdd_capacity').value = item.hdd_capacity || '';
             document.getElementById('os_version').value = item.os_version || '';
@@ -869,7 +856,6 @@
             document.getElementById('btnCancelEdit').style.display = 'none';
         }
 
-        // --- DELETE RECORD HANDLER ---
         async function deleteRecord(itCode) {
             if (!confirm(`Are you sure you want to delete record with IT Code: ${itCode}?`)) return;
 
@@ -884,15 +870,15 @@
             if (res.ok) loadInventory();
         }
 
-        // --- SINGLE PRINT BUTTON HANDLER (PRINTS BOTH PAGES COMBINED) ---
         function printCombinedReport(itCode) {
             const item = rawInventoryData.find(i => i.it_code === itCode);
             if (!item) return;
 
             document.getElementById('combinedPrintSheet').classList.add('active-print-sheet');
 
-            // 1. Populate Branch Visit Data (Page 1)
-            document.querySelectorAll('.bv_val_branch').forEach(el => el.innerText = item.it_business_name ? `________________ (${item.it_business_name})` : '________________');
+            // Branch Visit Data (Page 1) - combining Business Name and Department for the branch header line
+            const branchText = [item.it_business_name, item.it_department].filter(Boolean).join(' - ');
+            document.querySelectorAll('.bv_val_branch').forEach(el => el.innerText = branchText ? `________________ (${branchText})` : '________________');
             document.querySelectorAll('.bv_val_serial').forEach(el => el.innerText = item.serial_hdd_all || 'N/A');
             document.querySelectorAll('.bv_val_cpu').forEach(el => el.innerText = item.processor_cpu || item.model_brand || 'N/A');
             document.querySelectorAll('.bv_val_ram').forEach(el => el.innerText = item.ram || 'N/A');
@@ -910,8 +896,8 @@
             document.querySelectorAll('.bv_val_mac').forEach(el => el.innerText = item.mac_address || 'N/A');
             document.querySelectorAll('.bv_val_remarks').forEach(el => el.innerText = item.remarks || item.findings || '');
 
-            // 2. Populate PM Form Data (Page 2)
-            document.querySelectorAll('.pm_val_branch').forEach(el => el.innerText = item.it_business_name || '');
+            // PM Form Data (Page 2)
+            document.querySelectorAll('.pm_val_branch').forEach(el => el.innerText = branchText || '');
             document.querySelectorAll('.pm_val_date').forEach(el => el.innerText = item.date_visited || '');
             document.querySelectorAll('.pm_val_comp').forEach(el => el.innerText = `${item.system_unit || ''} (${item.it_code})`);
             document.querySelectorAll('.pm_val_fa').forEach(el => el.innerText = item.fa_number || 'N/A');
@@ -926,7 +912,6 @@
             document.getElementById('combinedPrintSheet').classList.remove('active-print-sheet');
         }
 
-        // --- Super Admin User Creation ---
         const createUserForm = document.getElementById('createUserForm');
         if (createUserForm) {
             createUserForm.addEventListener('submit', async (e) => {
@@ -950,11 +935,11 @@
             });
         }
 
-        // --- Inventory Form Submission Handler ---
         document.getElementById('inventoryForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const payload = {
                 it_business_name: document.getElementById('it_business_name').value,
+                it_department: document.getElementById('it_department').value,
                 system_unit: document.getElementById('system_unit').value,
                 issued_company_owned: document.getElementById('issued_company_owned').value,
                 employee_name: document.getElementById('employee_name').value,
@@ -975,7 +960,6 @@
                 action_taken: document.getElementById('action_taken').value,
                 remarks: document.getElementById('remarks').value,
 
-                // Peripheral FA & Computer Specs
                 processor_cpu: document.getElementById('processor_cpu').value,
                 hdd_capacity: document.getElementById('hdd_capacity').value,
                 os_version: document.getElementById('os_version').value,
@@ -1004,7 +988,6 @@
             }
         });
 
-        // --- Fetch & Load Inventory Table Data ---
         async function loadInventory() {
             const res = await fetch('/api/inventory');
             rawInventoryData = await res.json();
@@ -1014,7 +997,7 @@
             rawInventoryData.forEach(item => {
                 const row = `<tr>
                     <td><strong>${item.it_code}</strong><br><small>${item.issued_company_owned || ''}</small></td>
-                    <td><strong>${item.it_business_name || ''}</strong><br>${item.employee_name || ''}</td>
+                    <td><strong>${item.it_business_name || ''}</strong><br><small>${item.it_department || ''}</small></td>
                     <td>${item.system_unit || ''}<br><small>${item.model_brand || ''}</small></td>
                     <td>${item.ram || ''}<br>${item.storage_capacity || ''}</td>
                     <td>FA: ${item.fa_number || 'N/A'}<br>MAC: ${item.mac_address || 'N/A'}</td>
