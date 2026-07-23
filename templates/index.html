@@ -39,11 +39,11 @@
         /* --- PRINT TEMPLATES HIDDEN BY DEFAULT --- */
         .pm-template, .bv-template { display: none !important; }
 
-        /* --- PRINT STYLES (SEPARATED ON DIFFERENT PAGES, PROPERLY SCALED) --- */
+        /* --- PRINT STYLES (SCALED TO FIT EXACTLY 1 PAGE) --- */
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 10mm;
+                margin: 6mm; /* Tight margins to maximize space */
             }
 
             .no-print { display: none !important; }
@@ -53,72 +53,78 @@
             .active-print-sheet {
                 display: block !important;
                 width: 100%;
+                height: 98vh; /* Ensures it restricts to 1 page */
+                overflow: hidden; /* Prevents spawning an empty 2nd page */
             }
 
-            /* 1. PREVENTIVE MAINTENANCE FORM (FULL PAGE PER COPY) */
+            /* 1. PREVENTIVE MAINTENANCE FORM (TOP/BOTTOM ON 1 PAGE) */
             .pm-form-instance {
-                display: block; /* Removed flex stretch to fix cutoff bug */
+                height: 48.5%; /* Almost half the page each */
                 box-sizing: border-box;
-                padding: 10px;
-                break-after: page;
-                page-break-after: always;
+                padding: 4px 8px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
             }
-            .pm-form-instance:last-child {
-                break-after: avoid;
-                page-break-after: avoid;
+            
+            .cut-line { 
+                display: block; 
+                text-align: center; 
+                font-size: 7.5pt; 
+                border-top: 1px dashed #444; 
+                margin: 2px 0; 
+                padding-top: 2px; 
+                color: #444; 
             }
-            .cut-line { display: none; } /* Hidden since forms are on separate pages */
 
-            /* Scaled up PM tables */
-            table.pm-header-tbl, table.pm-meta-tbl { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-            table.pm-header-tbl td, table.pm-meta-tbl td { border: 1px solid #000; padding: 8px; font-size: 10pt; }
-            .brand-cell { width: 25%; text-align: center; vertical-align: middle; padding: 4px; }
-            .brand-cell img { max-width: 100%; max-height: 55px; display: block; margin: 0 auto; }
-            .title-cell { font-weight: bold; font-size: 13pt; text-align: center; text-transform: uppercase; background: #f5f5f5; }
+            /* PM Scaled Sizes */
+            table.pm-header-tbl, table.pm-meta-tbl { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+            table.pm-header-tbl td, table.pm-meta-tbl td { border: 1px solid #000; padding: 2px 4px; font-size: 7.5pt; }
+            .brand-cell { width: 25%; text-align: center; vertical-align: middle; padding: 1px; }
+            .brand-cell img { max-width: 100%; max-height: 38px; display: block; margin: 0 auto; }
+            .title-cell { font-weight: bold; font-size: 10pt; text-align: center; text-transform: uppercase; background: #f5f5f5; }
 
-            .pm-grid { display: flex; gap: 15px; margin-bottom: 15px; }
+            .pm-grid { display: flex; gap: 8px; margin-bottom: 4px; }
             .pm-grid-left { width: 50%; }
             .pm-grid-right { width: 50%; display: flex; flex-direction: column; justify-content: space-between; }
-            table.pm-chk-tbl { width: 100%; border-collapse: collapse; font-size: 9pt; }
-            table.pm-chk-tbl th, table.pm-chk-tbl td { border: 1px solid #000; padding: 6px; }
+            table.pm-chk-tbl { width: 100%; border-collapse: collapse; font-size: 7pt; }
+            table.pm-chk-tbl th, table.pm-chk-tbl td { border: 1px solid #000; padding: 2.5px 4px; }
             table.pm-chk-tbl th { background: #e2e8f0; font-weight: bold; text-align: left; }
-            .chk-mark { text-align: center; width: 18px; font-weight: bold; }
+            .chk-mark { text-align: center; width: 15px; font-weight: bold; color: #000;}
 
-            .remarks-box { border: 1px solid #000; padding: 8px; font-size: 9.5pt; min-height: 80px; margin-bottom: 25px; }
-            .remarks-title { font-weight: bold; color: #8b0000; margin-bottom: 5px; }
-            table.pm-sig-tbl { width: 100%; border-collapse: collapse; margin-top: 15px; }
-            table.pm-sig-tbl td { border: 1px solid #000; height: 60px; text-align: center; vertical-align: bottom; font-size: 9.5pt; padding-bottom: 5px; }
+            .remarks-box { border: 1px solid #000; padding: 4px; font-size: 7.5pt; min-height: 45px; margin-bottom: 5px; }
+            .remarks-title { font-weight: bold; color: #8b0000; margin-bottom: 2px; }
+            table.pm-sig-tbl { width: 100%; border-collapse: collapse; margin-top: 4px; }
+            table.pm-sig-tbl td { border: 1px solid #000; height: 35px; text-align: center; vertical-align: bottom; font-size: 7.5pt; padding-bottom: 2px; }
 
-            /* 2. BRANCH VISIT CHECKLIST (FULL PAGE PER COPY) */
+            /* 2. BRANCH VISIT CHECKLIST (SIDE-BY-SIDE ON 1 PAGE) */
             .bv-grid-container {
-                display: block !important; 
+                display: flex !important;
+                flex-direction: row;
+                justify-content: space-between;
+                width: 100%;
+                height: 100%;
             }
             .bv-column {
-                display: block;
-                width: 100% !important;
-                font-size: 10.5pt; /* Larger text for readability */
-                line-height: 1.4;
-                break-after: page;
-                page-break-after: always;
+                width: 48.5% !important;
+                height: 100%;
+                font-size: 7.5pt;
+                line-height: 1.25;
                 box-sizing: border-box;
-                padding: 10px;
-            }
-            .bv-column:last-child {
-                break-after: avoid;
-                page-break-after: avoid;
+                padding: 0 4px;
             }
             
-            /* Scaled up BV form */
-            .bv-header { font-size: 14pt; font-weight: bold; text-align: center; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 15px; }
-            .bv-section-title { font-weight: bold; font-size: 11pt; margin-top: 15px; margin-bottom: 8px; }
-            .bv-list { list-style: none; padding-left: 0; margin: 0 0 15px 0; }
-            .bv-list li { margin-bottom: 4px; }
-            .chk-box { color: red; font-weight: bold; margin-right: 5px; font-size: 12pt; }
+            /* BV Scaled Sizes */
+            .bv-header { font-size: 11pt; font-weight: bold; text-align: center; border-bottom: 1.5px solid #000; padding-bottom: 3px; margin-bottom: 6px; }
+            .bv-section-title { font-weight: bold; font-size: 8.5pt; margin-top: 6px; margin-bottom: 3px; }
+            .bv-list { list-style: none; padding-left: 0; margin: 0 0 6px 0; }
+            .bv-list li { margin-bottom: 2px; }
+            .chk-box { color: red; font-weight: bold; margin-right: 4px; font-size: 9pt; }
             
-            table.bv-spec-tbl { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 9.5pt; }
-            table.bv-spec-tbl th, table.bv-spec-tbl td { border: 1px solid #000; padding: 6px 8px; }
-            table.bv-spec-tbl th { background: #222; color: #fff; text-align: left; font-size: 10pt; }
-            .bv-aux-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 8.5pt; margin-top: 6px; }
+            table.bv-spec-tbl { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 6.8pt; }
+            table.bv-spec-tbl th, table.bv-spec-tbl td { border: 1px solid #000; padding: 3px 4px; vertical-align: top; }
+            table.bv-spec-tbl th { background: #222; color: #fff; text-align: left; font-size: 7.5pt; }
+            .bv-aux-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; font-size: 6.2pt; margin-top: 3px; }
         }
     </style>
 </head>
@@ -339,12 +345,12 @@
                                     <tr><td>Non-SSD Hard Drives</td><td class="chk-mark">✓</td><td>Run defragmentation</td></tr>
                                 </tbody>
                             </table>
+
+                            <div class="remarks-box">
+                                <div class="remarks-title">Remarks: Computer's Performance/ Recommendation:</div>
+                                <span class="pm_val_remarks"></span>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="remarks-box">
-                        <div class="remarks-title">Remarks: Computer's Performance/ Recommendation:</div>
-                        <span class="pm_val_remarks"></span>
                     </div>
                 </div>
 
@@ -355,6 +361,8 @@
                     </tr>
                 </table>
             </div>
+
+            <div class="cut-line">✂ - - - - - - - - - - - - - - - - CUT HERE - - - - - - - - - - - - - - - - ✂</div>
 
             <div class="pm-form-instance">
                 <div>
@@ -423,12 +431,12 @@
                                     <tr><td>Non-SSD Hard Drives</td><td class="chk-mark">✓</td><td>Run defragmentation</td></tr>
                                 </tbody>
                             </table>
+
+                            <div class="remarks-box">
+                                <div class="remarks-title">Remarks: Computer's Performance/ Recommendation:</div>
+                                <span class="pm_val_remarks"></span>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="remarks-box">
-                        <div class="remarks-title">Remarks: Computer's Performance/ Recommendation:</div>
-                        <span class="pm_val_remarks"></span>
                     </div>
                 </div>
 
@@ -527,7 +535,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2" style="height: 45px; vertical-align: top;">
+                                <td colspan="2" style="height: 35px; vertical-align: top;">
                                     <strong style="color: #dc2626;">Concerns / Remarks:</strong><br>
                                     <span class="bv_val_remarks"></span>
                                 </td>
@@ -620,7 +628,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2" style="height: 45px; vertical-align: top;">
+                                <td colspan="2" style="height: 35px; vertical-align: top;">
                                     <strong style="color: #dc2626;">Concerns / Remarks:</strong><br>
                                     <span class="bv_val_remarks"></span>
                                 </td>
@@ -804,7 +812,7 @@
             if (res.ok) loadInventory();
         }
 
-        // --- PRINT 1: RAQUEL PM FORM HANDLER (ISOLATED PRINT) ---
+        // --- PRINT 1: RAQUEL PM FORM HANDLER ---
         function printPMReport(itCode) {
             const item = rawInventoryData.find(i => i.it_code === itCode);
             if (!item) return;
@@ -827,7 +835,7 @@
             window.print();
         }
 
-        // --- PRINT 2: BRANCH VISIT CHECKLIST HANDLER (ISOLATED PRINT) ---
+        // --- PRINT 2: BRANCH VISIT CHECKLIST HANDLER ---
         function printBranchVisitReport(itCode) {
             const item = rawInventoryData.find(i => i.it_code === itCode);
             if (!item) return;
