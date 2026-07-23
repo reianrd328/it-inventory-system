@@ -39,11 +39,11 @@
         /* --- PRINT TEMPLATES HIDDEN BY DEFAULT --- */
         .pm-template, .bv-template { display: none !important; }
 
-        /* --- PRINT STYLES (SEPARATED ON DIFFERENT PAGES) --- */
+        /* --- PRINT STYLES (SEPARATED ON DIFFERENT PAGES, PROPERLY SCALED) --- */
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 8mm;
+                margin: 10mm;
             }
 
             .no-print { display: none !important; }
@@ -55,20 +55,11 @@
                 width: 100%;
             }
 
-            /* FORCE PAGE BREAK BETWEEN COPIES */
-            .page-break {
-                break-after: page;
-                page-break-after: always;
-            }
-
             /* 1. PREVENTIVE MAINTENANCE FORM (FULL PAGE PER COPY) */
             .pm-form-instance {
-                height: 95vh;
+                display: block; /* Removed flex stretch to fix cutoff bug */
                 box-sizing: border-box;
                 padding: 10px;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
                 break-after: page;
                 page-break-after: always;
             }
@@ -78,51 +69,56 @@
             }
             .cut-line { display: none; } /* Hidden since forms are on separate pages */
 
-            table.pm-header-tbl, table.pm-meta-tbl { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
-            table.pm-header-tbl td, table.pm-meta-tbl td { border: 1px solid #000; padding: 4px 6px; font-size: 8.5pt; }
-            .brand-cell { width: 25%; text-align: center; vertical-align: middle; padding: 2px; }
-            .brand-cell img { max-width: 100%; max-height: 42px; display: block; margin: 0 auto; }
-            .title-cell { font-weight: bold; font-size: 11pt; text-align: center; text-transform: uppercase; background: #f5f5f5; }
+            /* Scaled up PM tables */
+            table.pm-header-tbl, table.pm-meta-tbl { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+            table.pm-header-tbl td, table.pm-meta-tbl td { border: 1px solid #000; padding: 8px; font-size: 10pt; }
+            .brand-cell { width: 25%; text-align: center; vertical-align: middle; padding: 4px; }
+            .brand-cell img { max-width: 100%; max-height: 55px; display: block; margin: 0 auto; }
+            .title-cell { font-weight: bold; font-size: 13pt; text-align: center; text-transform: uppercase; background: #f5f5f5; }
 
-            .pm-grid { display: flex; gap: 8px; margin-bottom: 8px; }
-            .pm-grid-left { width: 52%; }
-            .pm-grid-right { width: 48%; display: flex; flex-direction: column; justify-content: space-between; }
-            table.pm-chk-tbl { width: 100%; border-collapse: collapse; font-size: 7.5pt; }
-            table.pm-chk-tbl th, table.pm-chk-tbl td { border: 1px solid #000; padding: 3px 5px; }
+            .pm-grid { display: flex; gap: 15px; margin-bottom: 15px; }
+            .pm-grid-left { width: 50%; }
+            .pm-grid-right { width: 50%; display: flex; flex-direction: column; justify-content: space-between; }
+            table.pm-chk-tbl { width: 100%; border-collapse: collapse; font-size: 9pt; }
+            table.pm-chk-tbl th, table.pm-chk-tbl td { border: 1px solid #000; padding: 6px; }
             table.pm-chk-tbl th { background: #e2e8f0; font-weight: bold; text-align: left; }
-            .chk-mark { text-align: center; width: 16px; font-weight: bold; }
+            .chk-mark { text-align: center; width: 18px; font-weight: bold; }
 
-            .remarks-box { border: 1px solid #000; padding: 6px; font-size: 8pt; height: 90px; }
-            .remarks-title { font-weight: bold; color: #8b0000; margin-bottom: 3px; }
-            table.pm-sig-tbl { width: 100%; border-collapse: collapse; margin-top: 10px; }
-            table.pm-sig-tbl td { border: 1px solid #000; height: 45px; text-align: center; vertical-align: bottom; font-size: 7.5pt; padding-bottom: 3px; }
+            .remarks-box { border: 1px solid #000; padding: 8px; font-size: 9.5pt; min-height: 80px; margin-bottom: 25px; }
+            .remarks-title { font-weight: bold; color: #8b0000; margin-bottom: 5px; }
+            table.pm-sig-tbl { width: 100%; border-collapse: collapse; margin-top: 15px; }
+            table.pm-sig-tbl td { border: 1px solid #000; height: 60px; text-align: center; vertical-align: bottom; font-size: 9.5pt; padding-bottom: 5px; }
 
             /* 2. BRANCH VISIT CHECKLIST (FULL PAGE PER COPY) */
             .bv-grid-container {
-                display: block !important; /* Stack vertically for separate pages */
+                display: block !important; 
             }
             .bv-column {
+                display: block;
                 width: 100% !important;
-                font-size: 8pt;
-                line-height: 1.25;
+                font-size: 10.5pt; /* Larger text for readability */
+                line-height: 1.4;
                 break-after: page;
                 page-break-after: always;
                 box-sizing: border-box;
-                padding-bottom: 15px;
+                padding: 10px;
             }
             .bv-column:last-child {
                 break-after: avoid;
                 page-break-after: avoid;
             }
-            .bv-header { font-size: 12pt; font-weight: bold; text-align: center; border-bottom: 2px solid #000; padding-bottom: 3px; margin-bottom: 6px; }
-            .bv-section-title { font-weight: bold; font-size: 9.5pt; margin-top: 6px; margin-bottom: 3px; }
-            .bv-list { list-style: none; padding-left: 0; margin: 0 0 6px 0; }
-            .bv-list li { margin-bottom: 2px; }
-            .chk-box { color: red; font-weight: bold; margin-right: 4px; }
             
-            table.bv-spec-tbl { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 7.5pt; }
-            table.bv-spec-tbl th, table.bv-spec-tbl td { border: 1px solid #000; padding: 3px 5px; }
-            table.bv-spec-tbl th { background: #222; color: #fff; text-align: left; font-size: 8pt; }
+            /* Scaled up BV form */
+            .bv-header { font-size: 14pt; font-weight: bold; text-align: center; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 15px; }
+            .bv-section-title { font-weight: bold; font-size: 11pt; margin-top: 15px; margin-bottom: 8px; }
+            .bv-list { list-style: none; padding-left: 0; margin: 0 0 15px 0; }
+            .bv-list li { margin-bottom: 4px; }
+            .chk-box { color: red; font-weight: bold; margin-right: 5px; font-size: 12pt; }
+            
+            table.bv-spec-tbl { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 9.5pt; }
+            table.bv-spec-tbl th, table.bv-spec-tbl td { border: 1px solid #000; padding: 6px 8px; }
+            table.bv-spec-tbl th { background: #222; color: #fff; text-align: left; font-size: 10pt; }
+            .bv-aux-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 8.5pt; margin-top: 6px; }
         }
     </style>
 </head>
@@ -343,12 +339,12 @@
                                     <tr><td>Non-SSD Hard Drives</td><td class="chk-mark">✓</td><td>Run defragmentation</td></tr>
                                 </tbody>
                             </table>
-
-                            <div class="remarks-box">
-                                <div class="remarks-title">Remarks: Computer's Performance/ Recommendation:</div>
-                                <span class="pm_val_remarks"></span>
-                            </div>
                         </div>
+                    </div>
+                    
+                    <div class="remarks-box">
+                        <div class="remarks-title">Remarks: Computer's Performance/ Recommendation:</div>
+                        <span class="pm_val_remarks"></span>
                     </div>
                 </div>
 
@@ -427,12 +423,12 @@
                                     <tr><td>Non-SSD Hard Drives</td><td class="chk-mark">✓</td><td>Run defragmentation</td></tr>
                                 </tbody>
                             </table>
-
-                            <div class="remarks-box">
-                                <div class="remarks-title">Remarks: Computer's Performance/ Recommendation:</div>
-                                <span class="pm_val_remarks"></span>
-                            </div>
                         </div>
+                    </div>
+                    
+                    <div class="remarks-box">
+                        <div class="remarks-title">Remarks: Computer's Performance/ Recommendation:</div>
+                        <span class="pm_val_remarks"></span>
                     </div>
                 </div>
 
@@ -518,7 +514,7 @@
                             <tr>
                                 <td colspan="2">
                                     <strong style="color: #16a34a;">Auxiliary App:</strong><br>
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; font-size: 6.5pt; margin-top: 2px;">
+                                    <div class="bv-aux-grid">
                                         <span>☐ BPI Banko</span><span>☐ CTI Loading</span>
                                         <span>☐ Sendah – Paymaya</span><span>☐ Peraquel</span>
                                         <span>☐ Bayad Center</span><span>☐ Biyahe ko</span>
@@ -531,7 +527,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2" style="height: 35px; vertical-align: top;">
+                                <td colspan="2" style="height: 45px; vertical-align: top;">
                                     <strong style="color: #dc2626;">Concerns / Remarks:</strong><br>
                                     <span class="bv_val_remarks"></span>
                                 </td>
@@ -611,7 +607,7 @@
                             <tr>
                                 <td colspan="2">
                                     <strong style="color: #16a34a;">Auxiliary App:</strong><br>
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; font-size: 6.5pt; margin-top: 2px;">
+                                    <div class="bv-aux-grid">
                                         <span>☐ BPI Banko</span><span>☐ CTI Loading</span>
                                         <span>☐ Sendah – Paymaya</span><span>☐ Peraquel</span>
                                         <span>☐ Bayad Center</span><span>☐ Biyahe ko</span>
@@ -624,7 +620,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2" style="height: 35px; vertical-align: top;">
+                                <td colspan="2" style="height: 45px; vertical-align: top;">
                                     <strong style="color: #dc2626;">Concerns / Remarks:</strong><br>
                                     <span class="bv_val_remarks"></span>
                                 </td>
