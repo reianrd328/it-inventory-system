@@ -231,6 +231,7 @@
                     <div class="form-group"><label>Date Visited</label><input type="date" id="date_visited" onchange="calculateDates()"></div>
                     <div class="form-group"><label>IT Code *</label><input type="text" id="it_code" required placeholder="Unique Asset Tag"></div>
                     <div class="form-group"><label>Date Issued</label><input type="date" id="date_issued" onchange="calculateDates()"></div>
+                    <div class="form-group"><label>Original Install Date</label><input type="date" id="original_install_date"></div>
                     
                     <div class="form-group">
                         <label>Unit Age (Auto)</label>
@@ -313,7 +314,7 @@
                             <li><span class="chk-box">◯</span> Check PC Application</li>
                             <li><span class="chk-box">◯</span> Removed Unnecessary Application - Capture</li>
                             <li><span class="chk-box">◯</span> On Run <em>"Systeminfo"</em></li>
-                            <li><span class="chk-box">◯</span> Original Install Date: ____________________</li>
+                            <li><span class="chk-box">◯</span> Original Install Date: <span class="bv_val_orig_install" style="border-bottom: 1px solid #000; padding: 0 5px;"></span></li>
                             <li><span class="chk-box">◯</span> Check Google Drive Backup</li>
                             <li><span class="chk-box">◯</span> Check PC backup Drive D:</li>
                             <li><span class="chk-box">◯</span> Check Browser Bookmarks/History-Capture/Prohibited site</li>
@@ -405,7 +406,7 @@
                             <li><span class="chk-box">◯</span> Check PC Application</li>
                             <li><span class="chk-box">◯</span> Removed Unnecessary Application - Capture</li>
                             <li><span class="chk-box">◯</span> On Run <em>"Systeminfo"</em></li>
-                            <li><span class="chk-box">◯</span> Original Install Date: ____________________</li>
+                            <li><span class="chk-box">◯</span> Original Install Date: <span class="bv_val_orig_install" style="border-bottom: 1px solid #000; padding: 0 5px;"></span></li>
                             <li><span class="chk-box">◯</span> Check Google Drive Backup</li>
                             <li><span class="chk-box">◯</span> Check PC backup Drive D:</li>
                             <li><span class="chk-box">◯</span> Check Browser Bookmarks/History-Capture/Prohibited site</li>
@@ -818,6 +819,7 @@
             document.getElementById('storage_capacity').value = item.storage_capacity || '';
             document.getElementById('serial_hdd_all').value = item.serial_hdd_all || '';
             document.getElementById('date_issued').value = item.date_issued || '';
+            document.getElementById('original_install_date').value = item.original_install_date || '';
             document.getElementById('fa_number').value = item.fa_number || '';
             document.getElementById('mac_address').value = item.mac_address || '';
             document.getElementById('tech_support').value = item.tech_support || '';
@@ -885,6 +887,7 @@
             document.querySelectorAll('.bv_val_storage').forEach(el => el.innerText = item.storage_capacity || 'N/A');
             document.querySelectorAll('.bv_val_hdd').forEach(el => el.innerText = item.hdd_capacity || 'N/A');
             document.querySelectorAll('.bv_val_os').forEach(el => el.innerText = item.os_version || 'N/A');
+            document.querySelectorAll('.bv_val_orig_install').forEach(el => el.innerText = item.original_install_date || 'N/A');
             document.querySelectorAll('.bv_val_mon_fa').forEach(el => el.innerText = item.monitor_fa || 'N/A');
             document.querySelectorAll('.bv_val_kb_fa').forEach(el => el.innerText = item.keyboard_fa || 'N/A');
             document.querySelectorAll('.bv_val_mouse_fa').forEach(el => el.innerText = item.mouse_fa || 'N/A');
@@ -951,6 +954,7 @@
                 serial_hdd_all: document.getElementById('serial_hdd_all').value,
                 description_specs: document.getElementById('description_specs').value,
                 date_issued: document.getElementById('date_issued').value,
+                original_install_date: document.getElementById('original_install_date').value,
                 unit_age: document.getElementById('unit_age').value,
                 depreciation_date: document.getElementById('depreciation_date').value,
                 fa_number: document.getElementById('fa_number').value,
